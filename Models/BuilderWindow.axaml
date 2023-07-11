@@ -1,0 +1,177 @@
+<Window
+    x:Class="WifiAvalonia.Views.BuilderWindow"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:WifiAvalonia.ViewModels"
+    d:DesignHeight="270"
+    d:DesignWidth="500"
+    Background="WhiteSmoke"
+    Icon="avares://WifiAvalonia/Assets/winux.ico"
+    mc:Ignorable="d">
+    <!--
+        Title="WINUX [CMF] SYSTEM"
+    -->
+    <Design.DataContext>
+        <vm:BuilderWindowViewModel />
+    </Design.DataContext>
+
+    <Window.Styles>
+        <Style Selector="TextBlock.h1">
+            <Setter Property="FontSize" Value="24" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="FontStyle" Value="Oblique" />
+            <Setter Property="Background" Value="Black" />
+            <Setter Property="Foreground" Value="Red" />
+            <Setter Property="Width" Value="498" />
+        </Style>
+    </Window.Styles>
+
+    <Grid
+        Margin="1"
+        ColumnDefinitions="60,50,60,60,40,90,40,40,50"
+        RowDefinitions="30,30,30,30,30,30,30,55,75,30,30">
+        <TextBlock
+            Grid.Row="0"
+            Grid.Column="0"
+            Grid.ColumnSpan="9"
+            Classes="h1" />
+        <TextBlock
+            Grid.Row="0"
+            Grid.Column="0"
+            Grid.ColumnSpan="9"
+            Classes="h1"
+            TextAlignment="Center">
+            WINUX BUILDER
+        </TextBlock>
+        <Image
+            Grid.Row="1"
+            Grid.RowSpan="3"
+            Grid.Column="0"
+            Grid.ColumnSpan="2"
+            Source="avares://WifiAvalonia/Assets/winux.png"
+            StretchDirection="UpOnly" />
+
+        <!--<StackPanel Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="6">		</StackPanel>-->
+        <Label
+            Grid.Row="1"
+            Grid.Column="2"
+            Grid.ColumnSpan="7"
+            Padding="6"
+            Content="ServerAddress: [ eg. 127.0.0.1 ]            Server Port:" />
+        <TextBox
+            x:Name="ServerURL"
+            Grid.Row="2"
+            Grid.Column="2"
+            Grid.ColumnSpan="3"
+            Width="245"
+            HorizontalAlignment="Left" />
+        <TextBox
+            x:Name="ServerPort"
+            Grid.Row="2"
+            Grid.Column="6"
+            Grid.ColumnSpan="2"
+            Width="120"
+            HorizontalAlignment="Left" />
+        <Label
+            Grid.Row="3"
+            Grid.Column="2"
+            Grid.ColumnSpan="4"
+            Padding="7"
+            Content="API String:" />
+        <TextBox
+            x:Name="APIExt"
+            Grid.Row="4"
+            Grid.Column="2"
+            Grid.ColumnSpan="2"
+            Width="145"
+            HorizontalAlignment="Left"
+            IsReadOnly="true"
+            Text="WinuxAPI" />
+
+        <CheckBox
+            x:Name="PolicyCheck"
+            Grid.Row="4"
+            Grid.Column="5"
+            IsEnabled="False" />
+        <Label
+            Grid.Row="4"
+            Grid.Column="5"
+            Grid.ColumnSpan="7"
+            Padding="6"
+            Content="      Encrypt Communication" />
+        <CheckBox
+            x:Name="AuthCheck"
+            Grid.Row="6"
+            Grid.Column="6"
+            IsEnabled="True" />
+        <Label
+            Grid.Row="6"
+            Grid.Column="6"
+            Grid.ColumnSpan="7"
+            Padding="6"
+            Content="     Authentication" />
+
+        <Label
+            Grid.Row="5"
+            Grid.Column="0"
+            Grid.ColumnSpan="7"
+            Padding="6"
+            Content=" Group Name:                      Connection Password: " />
+        <TextBox
+            x:Name="UName"
+            Grid.Row="6"
+            Grid.Column="0"
+            Grid.ColumnSpan="2"
+            Width="168"
+            Margin="4,2"
+            HorizontalAlignment="Left"
+            Text="Clients" />
+        <TextBox
+            x:Name="PName"
+            Grid.Row="6"
+            Grid.Column="3"
+            Grid.ColumnSpan="2"
+            Width="180"
+            HorizontalAlignment="Left"
+            IsEnabled="False" />
+
+        <CheckBox
+            x:Name="ServerChoice"
+            Grid.Row="7"
+            Grid.Column="2"
+            Grid.ColumnSpan="2"
+            Content="Win"
+            IsEnabled="True" />
+        <Label
+            Grid.Row="7"
+            Grid.Column="0"
+            Grid.ColumnSpan="7"
+            Padding="19"
+            Content="Server Build:" />
+        <CheckBox
+            x:Name="ClientChoice"
+            Grid.Row="7"
+            Grid.Column="5"
+            Content="Win"
+            IsEnabled="True" />
+        <Label
+            Grid.Row="7"
+            Grid.Column="2"
+            Grid.ColumnSpan="7"
+            Padding="19"
+            Content="               Client Build:" />
+
+        <Button
+            x:Name="BuildButton"
+            Grid.Row="7"
+            Grid.Column="6"
+            Width="120"
+            Height="40"
+            HorizontalContentAlignment="Center"
+            VerticalContentAlignment="Center"
+            Command="{Binding Build}"
+            Content="Build" />
+    </Grid>
+</Window>
