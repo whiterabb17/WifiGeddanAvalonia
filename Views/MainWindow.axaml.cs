@@ -32,6 +32,11 @@ namespace WifiAvalonia.Views
             var selectedIface = this.FindControl<TextBlock>("ScanBox");
             selectedIface.Text = mode;
         }
+        internal void scrollLogs()
+        {
+            //var selectedIface = this.FindControl<DataGrid>("InterfaceGrid");
+            
+        }
         internal void setIFaceMode(string mode)
         {
             var selectedIface = this.FindControl<Label>("IfaceMode");
