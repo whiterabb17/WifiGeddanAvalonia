@@ -104,10 +104,12 @@ namespace WifiAvalonia.ViewModels
                 mode = "monitor";
             }
             var _ilist = interfaceList();
+	    string newname = "";
             foreach (var _i in _ilist)
             {
-                if (_i.Name == selectedInterface)
+                if (_i.Name == selectedInterface || _i.Name.Contains("mon"))
                 {
+		    newname = _i.Name;
                     var selIface = new NetInterfaces()
                     {
                         Enabled = _i.Enabled,
@@ -115,13 +117,14 @@ namespace WifiAvalonia.ViewModels
                         State = _i.State,
                         Mode = mode.ToString().Replace("\r\n", "")
                     };
+		    runAndReturn("ifconfig", "", $"{_i.Name} up");
                     InsertIface(selIface, mode);
                 }
             }
             var log = new Logs
             {
                 LogTime = DateTime.Now.ToLongTimeString(),
-                LogData = "Monitor mode has been enabled on " + selectedInterface
+                LogData = "Monitor mode has been enabled on " + newname
             };
             InsertLog(log);
         }
@@ -165,6 +168,8 @@ namespace WifiAvalonia.ViewModels
         {
             if (WorkingOS == "Linux")
             {
+		if (!File.Exists("airodump.buf"))
+		    File.WriteAllText("airodump.buf", "");
                 runAndReturn("airodump-ng", "", $"--enc wpa {selectedInterface} > airodump.buf");
                 var log = new Logs
                 {
@@ -197,6 +202,8 @@ namespace WifiAvalonia.ViewModels
             {            
                 while (LogCollectionThread.IsAlive)
                 {
+		    // TODO: Implement a stream reader to read the file as it fills with data
+		    //var swriter = StreamReader()
                     var logs = File.ReadAllText(file);
                     if (ViewHolder._mainWindow != null)
                         await Dispatcher.UIThread.InvokeAsync(() => ViewHolder._mainWindow.setLogs(logs.ToString()), DispatcherPriority.Background);
