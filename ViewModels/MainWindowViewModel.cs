@@ -197,8 +197,9 @@ namespace WifiAvalonia.ViewModels
             {            
                 while (LogCollectionThread.IsAlive)
                 {
-                    string logs = File.ReadAllText(file);
-                    await Dispatcher.UIThread.InvokeAsync(() => ViewHolder._mainWindow.setLogs(logs), DispatcherPriority.Background);
+                    var logs = File.ReadAllText(file);
+                    if (ViewHolder._mainWindow != null)
+                        await Dispatcher.UIThread.InvokeAsync(() => ViewHolder._mainWindow.setLogs(logs.ToString()), DispatcherPriority.Background);
                 }
             }
         }
@@ -275,7 +276,8 @@ namespace WifiAvalonia.ViewModels
                             Mode = mode.ToString().Replace("\r\n", "")
                         };
                         InsertIface(selIface, mode);
-                        await Dispatcher.UIThread.InvokeAsync(() => ViewHolder._mainWindow.setIFaceMode(mode.ToString().Replace("\r\n", "")), DispatcherPriority.Background);
+                        if (ViewHolder._mainWindow != null)
+                            await Dispatcher.UIThread.InvokeAsync(() => ViewHolder._mainWindow.setIFaceMode(mode.ToString().Replace("\r\n", "")), DispatcherPriority.Background);
                     }
                 }
             }
@@ -296,7 +298,8 @@ namespace WifiAvalonia.ViewModels
                             State = "Online",
                             Mode = "monitor"
                         };
-                        await Dispatcher.UIThread.InvokeAsync(() => ViewHolder._mainWindow.setIFaceMode("monitor"), DispatcherPriority.Background);
+                        if (ViewHolder._mainWindow != null)
+                            await Dispatcher.UIThread.InvokeAsync(() => ViewHolder._mainWindow.setIFaceMode("monitor"), DispatcherPriority.Background);
                         // await Dispatcher.UIThread.InvokeAsync(() => InterfaceList.Clear(), DispatcherPriority.Background);
                         await Dispatcher.UIThread.InvokeAsync(() => InterfaceList.Add(selIface), DispatcherPriority.Background);
                         InterfaceList.Add(selIface);
@@ -310,8 +313,9 @@ namespace WifiAvalonia.ViewModels
                             Name = _i.Name,
                             State = "Online",
                             Mode = "managed"
-                        };
-                        await Dispatcher.UIThread.InvokeAsync(() => ViewHolder._mainWindow.setIFaceMode("managed"), DispatcherPriority.Background);
+                        }; 
+                        if (ViewHolder._mainWindow != null)
+                            await Dispatcher.UIThread.InvokeAsync(() => ViewHolder._mainWindow.setIFaceMode("managed"), DispatcherPriority.Background);
                         //  await Dispatcher.UIThread.InvokeAsync(() => InterfaceList.Clear(), DispatcherPriority.Background);
                         await Dispatcher.UIThread.InvokeAsync(() => InterfaceList.Add(selIface), DispatcherPriority.Background);
                         InterfaceList.Add(selIface);
@@ -441,7 +445,7 @@ namespace WifiAvalonia.ViewModels
                         if (iface.StartsWith("Enabled") || iface.StartsWith("Disabled"))
                         {
                             string[] values = iface.Split(' ');
-                            int inner = 0;
+                            //int inner = 0;
                             var _iface = new NetInterfaces()
                             {
                                 Enabled = values[0]
@@ -540,7 +544,10 @@ namespace WifiAvalonia.ViewModels
         public async void SetModeLabel(string imode)
         {
             await Dispatcher.UIThread.InvokeAsync(() => IFaceMode = imode, DispatcherPriority.Background);
-            await Dispatcher.UIThread.InvokeAsync(() => ViewHolder._mainWindow.IfaceMode.Content = imode, DispatcherPriority.Background);
+            if (ViewHolder._mainWindow != null)
+            {
+                await Dispatcher.UIThread.InvokeAsync(() => ViewHolder._mainWindow.setIFaceMode(imode), DispatcherPriority.Background);
+            }
         }
         public void InsertIface(NetInterfaces iface)
         {
@@ -675,7 +682,7 @@ namespace WifiAvalonia.ViewModels
                     if (iface.StartsWith("Enabled") || iface.StartsWith("Disabled"))
                     {
                         string[] values = iface.Split(' ');
-                        int inner = 0;
+                        //int inner = 0;
                         var _iface = new NetInterfaces()
                         {
                             Enabled = values[0],

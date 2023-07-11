@@ -42,8 +42,13 @@ namespace WifiAvalonia.Views
             var ifaceCbx = this.FindControl<ComboBox>("Interfaces");
             var selectedIface = this.FindControl<TextBox>("SelectedInterface");
             Console.WriteLine(ifaceCbx.SelectedItem);
-            MainWindowViewModel.selectedInterface = ifaceCbx.SelectedItem.ToString(); //ClientGrid.CurrentColumn.ToString();
-            selectedIface.Text = ifaceCbx.SelectedItem.ToString();            
+            if (ifaceCbx.SelectedItem != null ) 
+            {
+                var iface = ifaceCbx.SelectedItem.ToString();
+                if (iface != null)
+                    MainWindowViewModel.selectedInterface = iface; //ClientGrid.CurrentColumn.ToString();
+                selectedIface.Text = iface;
+            }                      
         }
     }
 }

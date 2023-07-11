@@ -1,28 +1,15 @@
-using WifiAvalonia.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
-using System.Security.Cryptography;
-using System.Text;
-using System.IO;
-using dnlib.DotNet;
-using dnlib.DotNet.Emit;
-using System.Linq;
-using WifiAvalonia.Models;
-using System.Threading.Tasks;
 using Avalonia.Markup.Xaml;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using WifiAvalonia.Views;
 
 namespace WifiAvalonia.Views
 {
     public partial class BuilderWindow : Window
     {
-        private static bool UsingAuth = false;
-        private static bool UsingEnc = false;
-        private static bool LinServer = false;
-        private static bool LinClient = false;
+        //private static bool UsingAuth = false;
+        //private static bool UsingEnc = false;
+        //private static bool LinServer = false;
+        //private static bool LinClient = false;
         public BuilderWindow()
         {
             this.Width = 500;
@@ -44,12 +31,12 @@ namespace WifiAvalonia.Views
         {
             if (ServerChoice.IsChecked == true)
             { 
-                LinServer = true;
+                //LinServer = true;
                 ServerChoice.Content = "Lin";
             }
             else
             { 
-                LinServer = false;
+                //LinServer = false;
                 ServerChoice.Content = "Win";
             }
         }
@@ -57,32 +44,32 @@ namespace WifiAvalonia.Views
         {
             if (ClientChoice.IsChecked == true)
             {
-                LinClient = true;
+                //LinClient = true;
                 ClientChoice.Content = "Lin";
             }
             else
             {
-                LinClient = false;
+                //LinClient = false;
                 ClientChoice.Content = "Win";
             }
         }
         private void EncCheck(object? sender, RoutedEventArgs e)
         {
-            if (PolicyCheck.IsChecked == true)
-                UsingEnc = true;
-            else
-                UsingEnc = false;
+            //if (PolicyCheck.IsChecked == true)
+            //    UsingEnc = true;
+            //else
+            //    UsingEnc = false;
         }
         private void CheckAuth(object? sender, RoutedEventArgs e)
         {
             if (AuthCheck.IsChecked == true)
             { 
-                UsingAuth = true;
+               // UsingAuth = true;
                 PName.IsEnabled = true;
             }
             else
             { 
-                UsingAuth = false;
+              //  UsingAuth = false;
                 PName.IsEnabled = false;
             }
         }
@@ -157,96 +144,96 @@ namespace WifiAvalonia.Views
             MessageBox.Show(this, "This window is an example of a MessageBox in Avalonia", "Build Results", MessageBox.MessageBoxButtons.Ok);
             this.Close();
         }
-        private async Task WriteSettingsC(ModuleDefMD asmDef, string AsmName, string Port, string Ext, string Name, string URL, string Pass = "")
-        {
-            try
-            {
-                foreach (TypeDef type in asmDef.Types)
-                {
-                    asmDef.Assembly.Name = Path.GetFileNameWithoutExtension(AsmName);
-                    asmDef.Name = Path.GetFileName(AsmName);
-                    if (type.Name == "Lineage")
-                        foreach (MethodDef method in type.Methods)
-                        {
-                            if (method.Body == null) continue;
-                            for (int i = 0; i < method.Body.Instructions.Count(); i++)
-                            {
-                                if (method.Body.Instructions[i].OpCode == OpCodes.Ldstr)
-                                {
-                                    if (method.Body.Instructions[i].Operand.ToString() == "%PORT%")
-                                        method.Body.Instructions[i].Operand = Port;
+        //private async Task WriteSettingsC(ModuleDefMD asmDef, string AsmName, string Port, string Ext, string Name, string URL, string Pass = "")
+        //{
+        //    try
+        //    {
+        //        foreach (TypeDef type in asmDef.Types)
+        //        {
+        //            asmDef.Assembly.Name = Path.GetFileNameWithoutExtension(AsmName);
+        //            asmDef.Name = Path.GetFileName(AsmName);
+        //            if (type.Name == "Lineage")
+        //                foreach (MethodDef method in type.Methods)
+        //                {
+        //                    if (method.Body == null) continue;
+        //                    for (int i = 0; i < method.Body.Instructions.Count(); i++)
+        //                    {
+        //                        if (method.Body.Instructions[i].OpCode == OpCodes.Ldstr)
+        //                        {
+        //                            if (method.Body.Instructions[i].Operand.ToString() == "%PORT%")
+        //                                method.Body.Instructions[i].Operand = Port;
 
-                                    if (method.Body.Instructions[i].Operand.ToString() == "%SERVERURL%")
-                                        method.Body.Instructions[i].Operand = URL;
+        //                            if (method.Body.Instructions[i].Operand.ToString() == "%SERVERURL%")
+        //                                method.Body.Instructions[i].Operand = URL;
 
-                                    if (method.Body.Instructions[i].Operand.ToString() == "%AUTH%")
-                                        method.Body.Instructions[i].Operand = Convert.ToString(UsingAuth);
+        //                            if (method.Body.Instructions[i].Operand.ToString() == "%AUTH%")
+        //                                method.Body.Instructions[i].Operand = Convert.ToString(UsingAuth);
 
-                                    if (method.Body.Instructions[i].Operand.ToString() == "%EXT%")
-                                        method.Body.Instructions[i].Operand = Ext;
+        //                            if (method.Body.Instructions[i].Operand.ToString() == "%EXT%")
+        //                                method.Body.Instructions[i].Operand = Ext;
 
-                                    if (method.Body.Instructions[i].Operand.ToString() == "%NAME%")
-                                        method.Body.Instructions[i].Operand = Name;
+        //                            if (method.Body.Instructions[i].Operand.ToString() == "%NAME%")
+        //                                method.Body.Instructions[i].Operand = Name;
 
-                                    if (method.Body.Instructions[i].Operand.ToString() == "%PASS%")
-                                        method.Body.Instructions[i].Operand = Pass;
+        //                            if (method.Body.Instructions[i].Operand.ToString() == "%PASS%")
+        //                                method.Body.Instructions[i].Operand = Pass;
 
-                                    if (method.Body.Instructions[i].Operand.ToString() == "%ENC%")
-                                        method.Body.Instructions[i].Operand = UsingEnc ? "wss" : "ws";
+        //                            if (method.Body.Instructions[i].Operand.ToString() == "%ENC%")
+        //                                method.Body.Instructions[i].Operand = UsingEnc ? "wss" : "ws";
 
-                                }
-                            }
-                        }
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new ArgumentException("WriteSettings: " + ex.Message);
-            }
-        }
-        private async Task WriteSettingsS(ModuleDefMD asmDef, string AsmName, string Port, string Ext, string Name, string Pass = "")
-        {
-            try
-            {
-                foreach (TypeDef type in asmDef.Types)
-                {
-                    asmDef.Assembly.Name = Path.GetFileNameWithoutExtension(AsmName);
-                    asmDef.Name = Path.GetFileName(AsmName);
-                    if (type.Name == "Lineage")
-                        foreach (MethodDef method in type.Methods)
-                        {
-                            if (method.Body == null) continue;
-                            for (int i = 0; i < method.Body.Instructions.Count(); i++)
-                            {
-                                if (method.Body.Instructions[i].OpCode == OpCodes.Ldstr)
-                                {
-                                    if (method.Body.Instructions[i].Operand.ToString() == "%PORT%")
-                                        method.Body.Instructions[i].Operand = Port;
+        //                        }
+        //                    }
+        //                }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new ArgumentException("WriteSettings: " + ex.Message);
+        //    }
+        //}
+       //private async Task WriteSettingsS(ModuleDefMD asmDef, string AsmName, string Port, string Ext, string Name, string Pass = "")
+       // {
+       //     try
+       //     {
+       //         foreach (TypeDef type in asmDef.Types)
+       //         {
+       //             asmDef.Assembly.Name = Path.GetFileNameWithoutExtension(AsmName);
+       //             asmDef.Name = Path.GetFileName(AsmName);
+       //             if (type.Name == "Lineage")
+       //                 foreach (MethodDef method in type.Methods)
+       //                 {
+       //                     if (method.Body == null) continue;
+       //                     for (int i = 0; i < method.Body.Instructions.Count(); i++)
+       //                     {
+       //                         if (method.Body.Instructions[i].OpCode == OpCodes.Ldstr)
+       //                         {
+       //                             if (method.Body.Instructions[i].Operand.ToString() == "%PORT%")
+       //                                 method.Body.Instructions[i].Operand = Port;
 
-                                    if (method.Body.Instructions[i].Operand.ToString() == "%AUTH%")
-                                        method.Body.Instructions[i].Operand = Convert.ToString(UsingAuth);
+       //                             if (method.Body.Instructions[i].Operand.ToString() == "%AUTH%")
+       //                                 method.Body.Instructions[i].Operand = Convert.ToString(UsingAuth);
 
-                                    if (method.Body.Instructions[i].Operand.ToString() == "%EXT%")
-                                        method.Body.Instructions[i].Operand = Ext;
+       //                             if (method.Body.Instructions[i].Operand.ToString() == "%EXT%")
+       //                                 method.Body.Instructions[i].Operand = Ext;
 
-                                    if (method.Body.Instructions[i].Operand.ToString() == "%UNAME%")
-                                        method.Body.Instructions[i].Operand = Name;
+       //                             if (method.Body.Instructions[i].Operand.ToString() == "%UNAME%")
+       //                                 method.Body.Instructions[i].Operand = Name;
 
-                                    if (method.Body.Instructions[i].Operand.ToString() == "%PNAME%")
-                                        method.Body.Instructions[i].Operand = Pass;
+       //                             if (method.Body.Instructions[i].Operand.ToString() == "%PNAME%")
+       //                                 method.Body.Instructions[i].Operand = Pass;
 
-                                    if (method.Body.Instructions[i].Operand.ToString() == "%ENC%")
-                                        method.Body.Instructions[i].Operand = Convert.ToString(UsingEnc);
+       //                             if (method.Body.Instructions[i].Operand.ToString() == "%ENC%")
+       //                                 method.Body.Instructions[i].Operand = Convert.ToString(UsingEnc);
 
-                                }
-                            }
-                        }
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new ArgumentException("WriteSettings: " + ex.Message);
-            }
-        }
+       //                         }
+       //                     }
+       //                 }
+       //         }
+       //     }
+       //     catch (Exception ex)
+       //     {
+       //         throw new ArgumentException("WriteSettings: " + ex.Message);
+       //     }
+       // }
     }
 }
