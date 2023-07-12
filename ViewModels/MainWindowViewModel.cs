@@ -42,13 +42,9 @@ namespace WifiAvalonia.ViewModels
 			StartAiroDumpScan = ReactiveCommand.Create(StartAiroDump);
 			IFaceMode = GetInterfaceMode();
 			if (WorkingOS == "Windows")
-			{
 				InterfaceList = new ObservableCollection<NetInterfaces>(GenerateInterfaceInfoTable());
-			}
 			else 
-			{
 				InterfaceList = new ObservableCollection<NetInterfaces>(GenerateInterfaceCollection());
-			}
 			//  StartUp();
 			//  GenerateCounts();
 			if (ViewHolder._mainWindow != null)
@@ -56,31 +52,35 @@ namespace WifiAvalonia.ViewModels
 		}
 
 		#region ReactiveCommands
-		// public ReactiveCommand<Unit, Unit> SendAdminMessage { get; }
 		public ReactiveCommand<Unit, Unit> EnableMonMode { get; }
 		public ReactiveCommand<Unit, Unit> DisableMonMode { get; }
 		public ReactiveCommand<Unit, Unit> EnableInterface { get; }
 		public ReactiveCommand<Unit, Unit> DisableInterface { get; }
 		public ReactiveCommand<Unit, Unit> GetIFaceMode { get; }
 		public ReactiveCommand<Unit, Unit> StartAiroDumpScan { get; }
-		//public ReactiveCommand<Unit, Unit> AppShutdown { get; }
 		#endregion ReactiveCommands
 
 		#region Variables
 		public static string? IFaceMode { get;set; }
 		public static MainWindowViewModel? _Main { get; set; }
 		private static Random random = new Random();
-		//  public ObservableCollection<Admins> People { get; }
+		private static Thread? AiroThread
+		{
+			get; set;
+		}
+		private static Thread? LogCollectionThread
+		{
+			get; set;
+		}
 		public ObservableCollection<NetInterfaces> InterfaceList { get; }
 		public ObservableCollection<Logs> LogList { get; }
-		//   public ObservableCollection<string> ClientKeys { get; } 
 		public ObservableCollection<string> AvailableInterfaces { get; }
-		internal static string selectedInterface = "<Waiting>";
-		#endregion Variables
+		internal static string selectedInterface = "Ethernet";
 		private static string? WorkingOS
 		{
-			get;set;
+			get; set;
 		}
+		#endregion Variables
 		#region Initializers
 		private void SetWorkingSystem()
 		{
@@ -90,6 +90,77 @@ namespace WifiAvalonia.ViewModels
 				WorkingOS = "Linux";
 			//ViewHolder._mainWindow.ClientCount.Text = "Clients: 0";
 		}
+		
+
+		private async void ShowError(Window window)
+		{
+			await MessageBox.Show(window, "Npcap Driver is required but is not installed\nWill Attempt to install now.", "Build Results", MessageBox.MessageBoxButtons.Ok);
+			HttpClient http = new HttpClient();
+			var npcap = await http.GetByteArrayAsync("https://npcap.com/dist/npcap-1.75.exe");
+			File.WriteAllBytes("npcapInstaller.exe", npcap);
+			Process.Start("npcapInstaller.exe").WaitForExit();
+			File.Delete("npcapInstaller.exe");
+			//await Dispatcher.UIThread.InvokeAsync(() => ShowIFaceMode(_mode), DispatcherPriority.Background);
+		}
+
+		private async void checkForDeps(Window window)
+		{
+			if (WorkingOS == "Windows")
+			{
+				if (!File.Exists("C:\\Windows\\System32\\Npcap\\wlanhelper.exe"))
+					ShowError(window);
+			}
+			else
+			{
+				var root = runAndReturn("whoami", "", "");
+				if (root.ToString() != "root")
+					await MessageBox.Show(window, "Must be run as root", "Linux Permission Error", MessageBox.MessageBoxButtons.Ok);
+			}
+		}
+
+		#region Interface Class Filler
+		private IEnumerable<NetInterfaces> GenerateInterfaceCollection()
+		{
+			var interfaceList = new List<NetInterfaces>();
+			foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
+			{
+				string mon = "";
+				if (ni.Name.Contains("mon"))
+				{
+					mon = "monitor";
+				}
+				var iface = new NetInterfaces()
+				{
+					Enabled = "Enabled",
+					State = "Online",
+					Name = ni.Name,
+					Mode = mon
+				};
+				interfaceList.Add(iface);
+			}
+			return interfaceList;
+		}
+
+		private List<NetInterfaces> GetNewInterfaceCollection()
+		{
+			var interfaceList = new List<NetInterfaces>();
+			foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
+			{
+				string mon = "";
+				if (ni.Name.Contains("mon"))
+					mon = "monitor";
+				var iface = new NetInterfaces()
+				{
+					Enabled = "Enabled",
+					State = "Online",
+					Name = ni.Name,
+					Mode = mon
+				};
+				interfaceList.Add(iface);
+			}
+			return interfaceList;
+		}
+		#endregion Interface Class Filler
 		private void EnableMonitorMode()
 		{
 			var mode = "managed";
@@ -187,20 +258,12 @@ namespace WifiAvalonia.ViewModels
 				InsertLog(log);
 			}
 		}
-		private static Thread? AiroThread
-		{
-			get;set;
-		}
-		private static Thread? LogCollectionThread
-		{
-			get; set;
-		}
 		private async void LogThread(StreamReader stream)
 		{
 			int count = 0;
 			var logstream = "";
 			if (LogCollectionThread != null)
-			{            
+			{
 				while (LogCollectionThread.IsAlive)
 				{
 					count++;
@@ -209,7 +272,7 @@ namespace WifiAvalonia.ViewModels
 					//var swriter = StreamReader()
 					logstream += stream.ReadLineAsync();
 					if (count == 10)
-					{                    
+					{
 						var curlogs = logstream;
 						if (ViewHolder._mainWindow != null)
 							if (curlogs != null)
@@ -280,7 +343,7 @@ namespace WifiAvalonia.ViewModels
 			foreach (NetInterfaces net in InterfaceList)
 			{
 				if (net.Name == selectedInterface)
-				{                
+				{
 					var rei = new NetInterfaces
 					{
 						Enabled = "Enabled",
@@ -294,7 +357,7 @@ namespace WifiAvalonia.ViewModels
 			InterfaceList.Clear();
 			foreach (NetInterfaces net2 in temp)
 			{
-				InterfaceList.Add(net2);   
+				InterfaceList.Add(net2);
 			}
 		}
 
@@ -338,7 +401,7 @@ namespace WifiAvalonia.ViewModels
 			else if (WorkingOS == "Linux")
 			{
 				InterfaceList.Clear();
-			   // NetInterfaces[] ifaces = new NetInterfaces[0];
+				// NetInterfaces[] ifaces = new NetInterfaces[0];
 				var _ilist = GetNewInterfaceCollection();
 				foreach (NetInterfaces _i in _ilist)
 				{
@@ -367,7 +430,7 @@ namespace WifiAvalonia.ViewModels
 							Name = _i.Name,
 							State = "Online",
 							Mode = "managed"
-						}; 
+						};
 						if (ViewHolder._mainWindow != null)
 							await Dispatcher.UIThread.InvokeAsync(() => ViewHolder._mainWindow.setIFaceMode("managed"), DispatcherPriority.Background);
 						//  await Dispatcher.UIThread.InvokeAsync(() => InterfaceList.Clear(), DispatcherPriority.Background);
@@ -377,76 +440,6 @@ namespace WifiAvalonia.ViewModels
 				}
 			}
 		}
-
-		private async void ShowError(Window window)
-		{
-			await MessageBox.Show(window, "Npcap Driver is required but is not installed\nWill Attempt to install now.", "Build Results", MessageBox.MessageBoxButtons.Ok);
-			HttpClient http = new HttpClient();
-			var npcap = await http.GetByteArrayAsync("https://npcap.com/dist/npcap-1.75.exe");
-			File.WriteAllBytes("npcapInstaller.exe", npcap);
-			Process.Start("npcapInstaller.exe").WaitForExit();
-			File.Delete("npcapInstaller.exe");
-			//await Dispatcher.UIThread.InvokeAsync(() => ShowIFaceMode(_mode), DispatcherPriority.Background);
-		}
-
-		private async void checkForDeps(Window window)
-		{
-			if (WorkingOS == "Windows")
-			{
-				if (!File.Exists("C:\\Windows\\System32\\Npcap\\wlanhelper.exe"))
-					ShowError(window);
-			}
-			else
-			{
-				var root = runAndReturn("whoami", "", "");
-				if (root.ToString() != "root")
-					await MessageBox.Show(window, "Must be run as root", "Linux Permission Error", MessageBox.MessageBoxButtons.Ok);
-			}
-		}
-
-		#region Interface Class Filler
-		private IEnumerable<NetInterfaces> GenerateInterfaceCollection()
-		{
-			var interfaceList = new List<NetInterfaces>();
-			foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
-			{
-				string mon = "";
-				if (ni.Name.Contains("mon"))
-				{
-					mon = "monitor";
-				}
-				var iface = new NetInterfaces()
-				{
-					Enabled = "Enabled",
-					State = "Online",
-					Name = ni.Name,
-					Mode = mon
-				};
-				interfaceList.Add(iface);
-			}
-			return interfaceList;
-		}
-
-		private List<NetInterfaces> GetNewInterfaceCollection()
-		{
-			var interfaceList = new List<NetInterfaces>();
-			foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
-			{
-				string mon = "";
-				if (ni.Name.Contains("mon"))
-					mon = "monitor";
-				var iface = new NetInterfaces()
-				{
-					Enabled = "Enabled",
-					State = "Online",
-					Name = ni.Name,
-					Mode = mon
-				};
-				interfaceList.Add(iface);
-			}
-			return interfaceList;
-		}
-		#endregion Interface Class Filler
 		private string GetInterfaceMode()
 		{
 			if (selectedInterface != "")
@@ -510,50 +503,51 @@ namespace WifiAvalonia.ViewModels
 							{
 								Enabled = values[0]
 							};
-							if (values[8] == "Connected")
+							switch (values[8])
 							{
-								_iface.State = "Online";
-								int _ = 0;
-								string _name = "";
-								foreach (string val in values)
-								{
-									_++;
-									if (_ > 19)
-										_name += val + " ";
-								}
-								_iface.Name = _name.TrimEnd().TrimStart();
-								var mode = "";
-								if (WorkingOS == "Windows")
-								{
-									mode = runAndReturn("C:\\Windows\\System32\\Npcap\\wlanhelper.exe", "C:\\Windows\\System32\\Npcap", $"\"{_iface.Name}\" mode");
-								}
-								_iface.Mode = mode.ToString().Replace("\r\n", "");
-								SetModeLabel(mode.ToString().Replace("\r\n", ""));
-								interList.Add(_iface);
-							}
-							else if (values[8] == "Disconnected")
-							{
-								_iface.State = "Offline";
-								int _ = 0;
-								string _name = "";
-								foreach (string val in values)
-								{
-									_++;
-									if (_ > 19)
+								case "Connected":
+									int _ = 0;
+									string _name = "";
+									_iface.State = "Online";
+									foreach (string val in values)
 									{
-										// MessageBox.Show(val);
-										_name += val + " ";
+										_++;
+										if (_ > 19)
+											_name += val + " ";
 									}
-								}
-								_iface.Name = _name.TrimEnd().TrimStart();
-								var mode = "";
-								if (WorkingOS == "Windows")
-								{
-									mode = runAndReturn("C:\\Windows\\System32\\Npcap\\wlanhelper.exe", "C:\\Windows\\System32\\Npcap", $"\"{_iface.Name}\" mode");
-								}
-								_iface.Mode = mode.ToString().Replace("\r\n", "");
-								SetModeLabel(mode.ToString().Replace("\r\n", ""));
-								interList.Add(_iface);
+									_iface.Name = _name.TrimEnd().TrimStart();
+									var mode = "";
+									if (WorkingOS == "Windows")
+									{
+										mode = runAndReturn("C:\\Windows\\System32\\Npcap\\wlanhelper.exe", "C:\\Windows\\System32\\Npcap", $"\"{_iface.Name}\" mode");
+									}
+									_iface.Mode = mode.ToString().Replace("\r\n", "");
+									SetModeLabel(mode.ToString().Replace("\r\n", ""));
+									interList.Add(_iface);
+									break;
+								case "Disconnected":
+									_iface.State = "Offline";
+									int __ = 0;
+									string __name = "";
+									foreach (string val in values)
+									{
+										__++;
+										if (__ > 19)
+										{
+											// MessageBox.Show(val);
+											__name += val + " ";
+										}
+									}
+									_iface.Name = __name.TrimEnd().TrimStart();
+									var _mode = "";
+									if (WorkingOS == "Windows")
+									{
+										_mode = runAndReturn("C:\\Windows\\System32\\Npcap\\wlanhelper.exe", "C:\\Windows\\System32\\Npcap", $"\"{_iface.Name}\" mode");
+									}
+									_iface.Mode = _mode.ToString().Replace("\r\n", "");
+									SetModeLabel(_mode.ToString().Replace("\r\n", ""));
+									interList.Add(_iface);
+									break;
 							}
 						}
 					}
@@ -577,23 +571,6 @@ namespace WifiAvalonia.ViewModels
 			return new string(Enumerable.Repeat(chars, length)
 				.Select(s => s[random.Next(s.Length)]).ToArray());
 		}
-		/*
-		public void AddClientKeys(string[] keys)
-		{
-			ClientKeys.Clear();
-			foreach (string key in keys)
-				ClientKeys.Add(new ClientKeys() { ClientKey = key });
-		}
-		*/
-		//public async void AddULogs(string tag, string id)
-		//{
-		//    People.Add(
-		//            new Admins()
-		//            {
-		//                Tag = tag,
-		//                AssignedId = id
-		//            });
-		//}
 		public async void AddLogs(List<NetInterfaces> interfaceList)
 		{
 			foreach (var iface in interfaceList)
