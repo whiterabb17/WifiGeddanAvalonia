@@ -664,7 +664,52 @@ namespace WifiAvalonia.ViewModels
 			if (!File.Exists(file))
 				File.WriteAllText(file, content);
 		}
-		private string runAndReturn(string process, string directory = "", string command = "", bool mustLog = false)
+		private async void runAndRead(string process, string directory = "", string command = "")
+        	{
+            		try
+            		{
+                		var proc = new Process
+                		{
+                    			StartInfo = new ProcessStartInfo
+                    			{
+                        			FileName = process,
+                        			Arguments = command,
+                        			WorkingDirectory = directory,
+                        			UseShellExecute = false,
+                        			RedirectStandardOutput = true,
+                        			CreateNoWindow = true
+                    			}
+                		};
+                		var logstream = "";
+                		char[] bb = new char[2048];
+                		var str = "";
+                		proc.Start();
+                		while (!proc.StandardOutput.EndOfStream)
+                		{
+			                var chars = proc.StandardOutput.ReadAsync(bb, 0, 2048);
+                    			for (int i = 0; i < await chars.ConfigureAwait(false); i++)
+                    			{
+                        			str += Convert.ToChar(bb[i]);
+                        			if (str.Length > 200)
+                        			{
+                            				Console.WriteLine(str);
+                            				await Dispatcher.UIThread.InvokeAsync(() => ViewHolder._mainWindow.addLogs(str), DispatcherPriority.Background);
+                            				str = null;
+							bb = null;
+							bb = new char[2048];
+                        			}
+                    			}
+                    			//Console.WriteLine(logstream);
+                    
+                		}
+            		}
+            		catch (Exception ex)
+			{ 
+				ensureFile("error.log", "WifiGeddan Error Log\n\n");
+				File.AppendAllText("error.log", ex.Message);
+			}
+        	}
+		private string runAndReturn(string process, string directory = "", string command = "")
 		{
 			var _info = "";
 			try
@@ -684,15 +729,7 @@ namespace WifiAvalonia.ViewModels
 				proc.Start();
 				while (!proc.StandardOutput.EndOfStream)
 				{
-					if (mustLog)
-					{
-						if (LogCollectionThread == null || !LogCollectionThread.IsAlive)
-							StartLogThread(proc.StandardOutput);
-					}
-					else
-					{
-						_info = proc.StandardOutput.ReadToEnd();
-					}
+					_info = proc.StandardOutput.ReadToEnd();
 				}
 				return _info;
 			}
@@ -786,12 +823,12 @@ namespace WifiAvalonia.ViewModels
 		}
 		#endregion DataHandler
 		#region AsyncTask_Binding
-		public Task<string> MyAsyncText => GetTextAsync();
-
-		private async Task<string> GetTextAsync()
+		public Task<string> AsyncScanText => GetTextAsync();
+		private static string ScanData = "";
+		private async Task<string> GetTextAsync(string scanText)
 		{
-			await Task.Delay(1000); // The delay is just for demonstration purpose
-			return "Hello from async operation";
+			ScanData += scanText;
+			return ScanData
 		}
 		#endregion
 	}
