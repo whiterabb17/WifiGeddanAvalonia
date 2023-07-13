@@ -240,7 +240,7 @@ namespace WifiAvalonia.ViewModels
 			if (WorkingOS == "Linux")
 			{
 				ensureFile("airodump.buf", "", true);
-				runAndReturn("airodump-ng", "", $"--enc wpa {selectedInterface} > airodump.buf", true);
+				runAndRead("airodump-ng", "", $"--enc wpa {selectedInterface} > airodump.buf");
 				var log = new Logs
 				{
 					LogTime = DateTime.Now.ToLongTimeString(),
@@ -582,9 +582,7 @@ namespace WifiAvalonia.ViewModels
 		{
 			await Dispatcher.UIThread.InvokeAsync(() => IFaceMode = imode, DispatcherPriority.Background);
 			if (ViewHolder._mainWindow != null)
-			{
 				await Dispatcher.UIThread.InvokeAsync(() => ViewHolder._mainWindow.setIFaceMode(imode), DispatcherPriority.Background);
-			}
 		}
 		public void InsertIface(NetInterfaces iface)
 		{
@@ -603,18 +601,14 @@ namespace WifiAvalonia.ViewModels
 					});
 			SetModeLabel(mode.ToString().Replace("\r\n", ""));
 		}
-		public async void InsertLog(Logs log)
+		public void InsertLog(Logs log)
 		{
 			LogList.Add(
-					new Logs()
-					{
-						LogTime = log.LogTime,
-						LogData = log.LogData
-					});
-			if (ViewHolder._mainWindow != null)
-			{
-				await Dispatcher.UIThread.InvokeAsync(() => ViewHolder._mainWindow.scrollLogs(), DispatcherPriority.Background);
-			}
+				new Logs()
+				{
+					LogTime = log.LogTime,
+					LogData = log.LogData
+				});
 		}
 		public void InsertIface(NetInterfaces iface, string mode)
 		{
@@ -665,50 +659,51 @@ namespace WifiAvalonia.ViewModels
 				File.WriteAllText(file, content);
 		}
 		private async void runAndRead(string process, string directory = "", string command = "")
-        	{
-            		try
-            		{
-                		var proc = new Process
-                		{
-                    			StartInfo = new ProcessStartInfo
-                    			{
-                        			FileName = process,
-                        			Arguments = command,
-                        			WorkingDirectory = directory,
-                        			UseShellExecute = false,
-                        			RedirectStandardOutput = true,
-                        			CreateNoWindow = true
-                    			}
-                		};
-                		var logstream = "";
-                		char[] bb = new char[2048];
-                		var str = "";
-                		proc.Start();
-                		while (!proc.StandardOutput.EndOfStream)
-                		{
-			                var chars = proc.StandardOutput.ReadAsync(bb, 0, 2048);
-                    			for (int i = 0; i < await chars.ConfigureAwait(false); i++)
-                    			{
-                        			str += Convert.ToChar(bb[i]);
-                        			if (str.Length > 200)
-                        			{
-                            				Console.WriteLine(str);
-                            				await Dispatcher.UIThread.InvokeAsync(() => ViewHolder._mainWindow.addLogs(str), DispatcherPriority.Background);
-                            				str = null;
-							bb = null;
-							bb = new char[2048];
-                        			}
-                    			}
-                    			//Console.WriteLine(logstream);
+        {
+            try
+            {
+                var proc = new Process
+                {
+                    	StartInfo = new ProcessStartInfo
+                    	{
+                        	FileName = process,
+                        	Arguments = command,
+                        	WorkingDirectory = directory,
+                        	UseShellExecute = false,
+                        	RedirectStandardOutput = true,
+                        	CreateNoWindow = true
+                    	}
+                };
+                var bb = new char[2048];
+                var str = "";
+                proc.Start();
+                while (!proc.StandardOutput.EndOfStream)
+                {
+			        var chars = proc.StandardOutput.ReadAsync(bb, 0, 2048);
+                    for (var i = 0; i < await chars.ConfigureAwait(false); i++)
+                    {
+                        str += Convert.ToChar(bb[i]);
+                        if (str.Length > 200)
+                        {
+                            Console.WriteLine(str);
+                            ScanData += str;
+                            _ = GetTextAsync();
+                            //await Dispatcher.UIThread.InvokeAsync(() => ViewHolder._mainWindow.addLogs(str), DispatcherPriority.Background);
+                            str = null;
+					        bb = null;
+					        bb = new char[2048];
+                        }
+                    }
+                    	//Console.WriteLine(logstream);
                     
-                		}
-            		}
-            		catch (Exception ex)
-			{ 
-				ensureFile("error.log", "WifiGeddan Error Log\n\n");
-				File.AppendAllText("error.log", ex.Message);
-			}
-        	}
+                }
+            }
+            catch (Exception ex)
+		    { 
+			    ensureFile("error.log", "WifiGeddan Error Log\n\n");
+			    File.AppendAllText("error.log", ex.Message);
+		    }
+        }
 		private string runAndReturn(string process, string directory = "", string command = "")
 		{
 			var _info = "";
@@ -825,10 +820,10 @@ namespace WifiAvalonia.ViewModels
 		#region AsyncTask_Binding
 		public Task<string> AsyncScanText => GetTextAsync();
 		private static string ScanData = "";
-		private async Task<string> GetTextAsync(string scanText)
+		private async Task<string> GetTextAsync()
 		{
-			ScanData += scanText;
-			return ScanData
+            await Task.Delay(100);
+			return ScanData;
 		}
 		#endregion
 	}

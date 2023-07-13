@@ -1,51 +1,54 @@
 <Window
-    x:Class="WifiAvalonia.Views.MainWindow"
-    xmlns="https://github.com/avaloniaui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:vm="clr-namespace:WifiAvalonia.ViewModels"
-    d:DesignHeight="495"
-    d:DesignWidth="800"
-    Background="WhiteSmoke"
-    Icon="avares://WifiAvalonia/Assets/winux.ico"
-    mc:Ignorable="d">
-    <!--
-        Title="WINUX [CMF] SYSTEM"
-    -->
-    <Design.DataContext>
-        <vm:MainWindowViewModel />
-    </Design.DataContext>
+	x:Class="WifiAvalonia.Views.MainWindow"
+	xmlns="https://github.com/avaloniaui"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:vm="clr-namespace:WifiAvalonia.ViewModels"
+	d:DesignHeight="495"
+	d:DesignWidth="800"
+	Background="WhiteSmoke"
+	Icon="avares://WifiAvalonia/Assets/winux.ico"
+	mc:Ignorable="d">
+	<!--
+		Title="WINUX [CMF] SYSTEM"
+	-->
+	<Design.DataContext>
+		<vm:MainWindowViewModel />
+	</Design.DataContext>
 
-    <Window.Styles>
-        <Style Selector="TextBlock.h1">
-            <Setter Property="FontSize" Value="24" />
-            <Setter Property="FontWeight" Value="Bold" />
-            <Setter Property="FontStyle" Value="Oblique" />
-            <Setter Property="Background" Value="Black" />
-            <Setter Property="Foreground" Value="Red" />
-        </Style>
-    </Window.Styles>
+	<Window.Styles>
+		<Style Selector="TextBlock.h1">
+			<Setter Property="FontSize" Value="24" />
+			<Setter Property="FontWeight" Value="Bold" />
+			<Setter Property="FontStyle" Value="Oblique" />
+			<Setter Property="Background" Value="Black" />
+			<Setter Property="Foreground" Value="Red" />
+		</Style>
+		<Style Selector="DataGrid.logs">
+			<Setter Property="ColumnWidth" Value="auto" />
+		</Style>
+	</Window.Styles>
 
-    <Grid
-        Margin="4"
-        ColumnDefinitions="80,70,80,100,80,210,50,120"
-        RowDefinitions="30,30,55,30,30,30,20,30,30,20,30,75,30,30">
-        <TextBlock
-            Grid.Row="0"
-            Grid.Column="0"
-            Grid.ColumnSpan="11"
-            Classes="h1" />
-        <TextBlock
-            Grid.Row="0"
-            Grid.Column="4"
-            Grid.ColumnSpan="3"
-            Classes="h1">
-            WifiGeddan
-        </TextBlock>
+	<Grid
+		Margin="4"
+		ColumnDefinitions="80,70,80,100,80,210,50,120"
+		RowDefinitions="30,30,55,30,30,30,20,30,30,20,30,75,30,30">
+		<TextBlock
+			Grid.Row="0"
+			Grid.Column="0"
+			Grid.ColumnSpan="11"
+			Classes="h1" />
+		<TextBlock
+			Grid.Row="0"
+			Grid.Column="4"
+			Grid.ColumnSpan="3"
+			Classes="h1">
+			WifiGeddan
+		</TextBlock>
 
 
-        <!--
+		<!--
 		<Image
 			Grid.Row="1"
 			Grid.RowSpan="3"
@@ -57,54 +60,54 @@
 		<TextBlock Text="{Binding MyAsyncText^, FallbackValue='Wait a second'}" />
 		
 		-->
-        <Grid.ContextMenu>
-            <ContextMenu>
-                <MenuItem x:Name="BuilderCtxItem" Header="Builder" />
-                <MenuItem Header="--------------------" />
-                <MenuItem x:Name="LocalServerCtxItem" Header="Start Server" />
-                <MenuItem x:Name="ManageServerCtxItem" Header="Connect To Server" />
-                <MenuItem x:Name="ShutdownCtxItem" Header="Shutdown" />
-            </ContextMenu>
-        </Grid.ContextMenu>
-        <!--  Scan Result Data Grid  -->
-        <DataGrid
-            x:Name="InterfaceGrid"
-            Grid.Row="1"
-            Grid.RowSpan="2"
-            Grid.Column="0"
-            Grid.ColumnSpan="8"
-            Width="780"
-            Height="65"
-            Padding="0,0,10,0"
-            VerticalAlignment="Top"
-            AutoGenerateColumns="True"
-            Background="Gray"
-            ColumnWidth="1*"
-            Foreground="Black"
-            HorizontalGridLinesBrush="Black"
-            Items="{Binding InterfaceList}"
-            ScrollViewer.VerticalScrollBarVisibility="Auto"
-            SelectionMode="Single" />
+		<Grid.ContextMenu>
+			<ContextMenu>
+				<MenuItem x:Name="BuilderCtxItem" Header="Builder" />
+				<MenuItem Header="--------------------" />
+				<MenuItem x:Name="LocalServerCtxItem" Header="Start Server" />
+				<MenuItem x:Name="ManageServerCtxItem" Header="Connect To Server" />
+				<MenuItem x:Name="ShutdownCtxItem" Header="Shutdown" />
+			</ContextMenu>
+		</Grid.ContextMenu>
+		<!--  Scan Result Data Grid  -->
+		<DataGrid
+			x:Name="InterfaceGrid"
+			Grid.Row="1"
+			Grid.RowSpan="2"
+			Grid.Column="0"
+			Grid.ColumnSpan="8"
+			Width="780"
+			Height="65"
+			Padding="0,0,10,0"
+			VerticalAlignment="Top"
+			AutoGenerateColumns="True"
+			Background="Gray"
+			ColumnWidth="1*"
+			Foreground="Black"
+			HorizontalGridLinesBrush="Black"
+			Items="{Binding InterfaceList}"
+			ScrollViewer.VerticalScrollBarVisibility="Auto"
+			SelectionMode="Single" />
 
-        <DataGrid
-            x:Name="LogGrid"
-            Grid.Row="4"
-            Grid.RowSpan="2"
-            Grid.Column="0"
-            Grid.ColumnSpan="8"
-            Width="780"
-            Height="152"
-            Padding="5,0,10,0"
-            AutoGenerateColumns="True"
-            Background="Gray"
-            ColumnWidth="auto"
-            Foreground="Black"
-            HorizontalGridLinesBrush="Black"
-            Items="{Binding LogList}"
-            ScrollViewer.VerticalScrollBarVisibility="Auto"
-            SelectionMode="Single" />
+		<DataGrid
+			x:Name="LogGrid"
+			Grid.Row="4"
+			Classes="logs"
+			Grid.RowSpan="2"
+			Grid.Column="0"
+			Grid.ColumnSpan="8"
+			Width="780"
+			Height="152"
+			Padding="5,0,10,0"
+			AutoGenerateColumns="True"
+			Background="Gray"
+			Foreground="Black"
+			HorizontalGridLinesBrush="Black"
+			Items="{Binding LogList}"
+			ScrollViewer.VerticalScrollBarVisibility="Auto"
+			SelectionMode="Single" />
 
-        <!-- Attack Result Data Grid
+		<!-- Attack Result Data Grid
 		<DataGrid
 			x:Name="LogGrid"
 			Grid.Row="7"
@@ -119,97 +122,99 @@
 			HorizontalGridLinesBrush="Black"
 			ScrollViewer.VerticalScrollBarVisibility="Auto" />
 		-->
-        <StackPanel
-            Grid.Row="8"
-            Grid.Column="0"
-            Grid.ColumnSpan="8">
-            <TextBlock
-                x:Name="ScanBox"
-                Grid.Row="9"
-                Grid.RowSpan="1"
-                Grid.Column="0"
-                Grid.ColumnSpan="8"
-                Width="780"
-                Height="150"
-                Padding="0"
-                Background="Black"
-                Foreground="White"
-                Text="" />
-            <TextBox
-                x:Name="SelectedInterface"
-                Grid.Row="5"
-                Grid.Column="0"
-                Grid.ColumnSpan="2"
-                Width="145"
-                HorizontalAlignment="Left"
-                IsReadOnly="false"
-                IsVisible="False" />
-        </StackPanel>
+		<StackPanel
+			Grid.Row="8"
+			Grid.Column="0"
+			Grid.ColumnSpan="8">
+			<TextBlock
+				x:Name="ScanBox"
+				Grid.Row="9"
+				Grid.RowSpan="1"
+				Grid.Column="0"
+				Grid.ColumnSpan="8"
+				Width="780"
+				Height="150"
+				Padding="10"
+				Background="Black"
+				Foreground="White"
+				Text="{Binding MyAsyncText^, FallbackValue='Scan Data'}" />
+			<TextBox
+				x:Name="SelectedInterface"
+				Grid.Row="5"
+				Grid.Column="0"
+				Grid.ColumnSpan="2"
+				Width="145"
+				HorizontalAlignment="Left"
+				IsReadOnly="false"
+				IsVisible="False" />
+		</StackPanel>
 
-        <StackPanel Grid.Row="12" Grid.Column="0">
-            <Button
-                Grid.Column="2"
-                Width="145"
-                Height="32"
-                Command="{Binding EnableMonMode}"
-                Content="Enable Mon Mode" />
-            <Button
-                Width="145"
-                Height="32"
-                Command="{Binding DisableMonMode}"
-                Content="Disable Mon Mode" />
-        </StackPanel>
-        <StackPanel Grid.Row="12" Grid.Column="2">
-            <Button
-                Width="145"
-                Height="32"
-                Command="{Binding EnableInterface}"
-                Content=" Enable Interface" />
-            <Button
-                Width="145"
-                Height="32"
-                Command="{Binding DisableInterface}"
-                Content=" Disable Interface" />
-        </StackPanel>
-        <Label
-            Grid.Row="12"
-            Grid.Column="4"
-            Padding="6"
-            Content="Interface:" />
-        <Label
-            Grid.Row="13"
-            Grid.Column="4"
-            Height="30"
-            Padding="6"
-            Content="Mode:" />
-        <Label
-            x:Name="IfaceMode"
-            Grid.Row="13"
-            Grid.Column="5"
-            Height="30"
-            Padding="6" />
-        <ComboBox
-            x:Name="Interfaces"
-            Grid.Row="12"
-            Grid.Column="5"
-            Width="255"
-            Height="30"
-            Items="{Binding AvailableInterfaces}"
-            SelectedIndex="0" />
-        <Button
-            x:Name="SendBtn"
-            Grid.Row="12"
-            Grid.Column="7"
-            Width="120"
-            Height="30"
-            Command="{Binding GetAdapterMode}"
-            Content="       Select" />
-        <Button
-            Grid.Row="13"
-            Grid.Column="7"
-            Width="120"
-            Height="30"
-            Command="{Binding StartAiroDumpScan}"
-            Content="Start Airodump" />
-    </Grid>
+		<StackPanel Grid.Row="12" Grid.Column="0">
+			<Button
+				Grid.Column="2"
+				Width="145"
+				Height="32"
+				Command="{Binding EnableMonMode}"
+				Content="Enable Mon Mode" />
+			<Button
+				Width="145"
+				Height="32"
+				Command="{Binding DisableMonMode}"
+				Content="Disable Mon Mode" />
+		</StackPanel>
+		<StackPanel Grid.Row="12" Grid.Column="2">
+			<Button
+				Width="145"
+				Height="32"
+				Command="{Binding EnableInterface}"
+				Content=" Enable Interface" />
+			<Button
+				Width="145"
+				Height="32"
+				Command="{Binding DisableInterface}"
+				Content=" Disable Interface" />
+		</StackPanel>
+		<Label
+			Grid.Row="12"
+			Grid.Column="4"
+			Padding="6"
+			Content="Interface:" />
+		<Label
+			Grid.Row="13"
+			Grid.Column="4"
+			Height="30"
+			Padding="6"
+			Content="Mode:" />
+		<Label
+			x:Name="IfaceMode"
+			Grid.Row="13"
+			Grid.Column="5"
+			Height="30"
+			Padding="6" />
+		<ComboBox
+			x:Name="Interfaces"
+			Grid.Row="12"
+			Grid.Column="5"
+			Width="255"
+			Height="30"
+			Items="{Binding AvailableInterfaces}"
+			SelectedIndex="0" />
+		<Button
+			x:Name="SendBtn"
+			Grid.Row="12"
+			Grid.Column="7"
+			Width="120"
+			Height="30"
+			Command="{Binding GetAdapterMode}"
+			Content="Select"
+			HorizontalAlignment="Center" />
+		<Button
+			Grid.Row="13"
+			Grid.Column="7"
+			Width="120"
+			Height="30"
+			Command="{Binding StartAiroDumpScan}"
+			Content="Start Airodump"
+			HorizontalAlignment="Center" />
+	</Grid>
 </Window>

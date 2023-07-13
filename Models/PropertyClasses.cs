@@ -7,63 +7,63 @@ namespace WifiAvalonia.Models
     {
         public static MainWindow? _mainWindow;
     }
-    public class CommandList
-    {
-        public static string listDirectory = "listDir";
-        public static string sendFile = "sendFile";
-        public static string getFile = "getFile";
-        public static string getDirectory = "getDir";
-        public static string changeDirectory = "cDir";
-        public static string screenShot = "sShot";
-        public static string runCmd = "runCmd";
-    }
-    public class DataLists
-    {
-        //public static ObservableCollection<Logs> LogItems { get; } = new ObservableCollection<Logs>();
-        //public static ObservableCollection<Admins> AdminItems { get; } = new ObservableCollection<Admins>();
-        //public static ObservableCollection<Clients> ClientItems { get; } = new ObservableCollection<Clients>();
-        public static string AdminUpdated = "<Waiting>";
-        public static List<Admins> AdminList = new List<Admins>();
-        public static string ClientUpdated = "<Waiting>";
-        public static List<Clients> ClientList = new List<Clients>();
-        public static string LogsUpdated = "<Waiting>";
-        public static List<Logs> LogList = new List<Logs>();
-        public static int ACount = 0;
-        public static int CCount = 0;
-    }
-    public class Admins
-    {
-        public string? Tag { get; set; }
-        public string? AssignedId { get; set; }
-    }
-    public class Clients
-    {
-        public string? Tag { get; set; }
-        public string? AssignedId { get; set; }
-    }
+    //public class CommandList
+    //{
+    //    public static string listDirectory = "listDir";
+    //    public static string sendFile = "sendFile";
+    //    public static string getFile = "getFile";
+    //    public static string getDirectory = "getDir";
+    //    public static string changeDirectory = "cDir";
+    //    public static string screenShot = "sShot";
+    //    public static string runCmd = "runCmd";
+    //}
+    //public class DataLists
+    //{
+    //    //public static ObservableCollection<Logs> LogItems { get; } = new ObservableCollection<Logs>();
+    //    //public static ObservableCollection<Admins> AdminItems { get; } = new ObservableCollection<Admins>();
+    //    //public static ObservableCollection<Clients> ClientItems { get; } = new ObservableCollection<Clients>();
+    //    //public static string AdminUpdated = "<Waiting>";
+    //    //public static List<Admins> AdminList = new List<Admins>();
+    //    //public static string ClientUpdated = "<Waiting>";
+    //    //public static List<Clients> ClientList = new List<Clients>();
+    //    //public static string LogsUpdated = "<Waiting>";
+    //    //public static List<Logs> LogList = new List<Logs>();
+    //    //public static int ACount = 0;
+    //    //public static int CCount = 0;
+    //}
+    //public class Admins
+    //{
+    //    public string? Tag { get; set; }
+    //    public string? AssignedId { get; set; }
+    //}
+    //public class Clients
+    //{
+    //    public string? Tag { get; set; }
+    //    public string? AssignedId { get; set; }
+    //}
     public class Logs
     { 
         public string? LogTime { get; set; }
         public string? LogData { get; set; }
     }
-    internal class Melancholy
-    {
-        internal string w9(string input)
-        {
-            return w7(input);
-        }
-        protected string w7(string input)
-        {
-            string text = "QDXkW<_(V?cqK.lJ>-*y&zv9prf8biYCFeMxBm6ZnG3H4OuS1UaI5TwtoA#Rs!,7d2@L^gNhj)EP$0";
-            char[] array = (input ?? "").ToCharArray();
-            for (int i = 0; i < array.Length; i++)
-            {
-                int num = text.IndexOf(array[i]);
-                array[i] = ((num < 0) ? array[i] : text[(num + 39) % 78]);
-            }
-            return new string(array);
-        }
-    }
+    //internal class Melancholy
+    //{
+    //    internal string w9(string input)
+    //    {
+    //        return w7(input);
+    //    }
+    //    protected string w7(string input)
+    //    {
+    //        string text = "QDXkW<_(V?cqK.lJ>-*y&zv9prf8biYCFeMxBm6ZnG3H4OuS1UaI5TwtoA#Rs!,7d2@L^gNhj)EP$0";
+    //        char[] array = (input ?? "").ToCharArray();
+    //        for (int i = 0; i < array.Length; i++)
+    //        {
+    //            int num = text.IndexOf(array[i]);
+    //            array[i] = ((num < 0) ? array[i] : text[(num + 39) % 78]);
+    //        }
+    //        return new string(array);
+    //    }
+    //}
     //internal class Ancestory
     //{
     //    internal Ancestory()

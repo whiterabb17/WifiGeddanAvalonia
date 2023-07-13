@@ -33,9 +33,7 @@ namespace WifiAvalonia.Views
             selectedIface.Text = mode;
         }
         internal void addLogs(string logData)
-        {
-            var scanBox = this.FindControl<TextBlock>("ScanBox");
-	    scanBox.AppendText(str);            
+        {            
         }
         internal void setIFaceMode(string mode)
         {
