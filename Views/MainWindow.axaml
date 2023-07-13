@@ -137,7 +137,8 @@
 				Padding="10"
 				Background="Black"
 				Foreground="White"
-				Text="{Binding MyAsyncText^, FallbackValue='Scan Data'}" />
+				ScrollViewer.VerticalScrollBarVisibility="Auto"
+				Text="" />
 			<TextBox
 				x:Name="SelectedInterface"
 				Grid.Row="5"
