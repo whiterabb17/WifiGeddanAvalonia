@@ -12,7 +12,7 @@ namespace WifiAvalonia.Views
         public MainWindow()
         {
             this.Width = 800;
-            this.Height = 495;
+            this.Height = 500;
             InitializeComponent();
             AvaloniaXamlLoader.Load(this);
             ViewHolder._mainWindow = this;
@@ -30,8 +30,8 @@ namespace WifiAvalonia.Views
         internal void insertData(string mode)
         {
             var selectedIface = this.FindControl<TextBlock>("ScanBox");
-            selectedIface.Text = "";
-            selectedIface.Text = mode;
+          //  selectedIface.Text = "";
+            selectedIface.Text += mode;
         }
         internal void setIFaceMode(string mode)
         {

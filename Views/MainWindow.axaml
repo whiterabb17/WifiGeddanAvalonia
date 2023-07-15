@@ -5,7 +5,7 @@
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:vm="clr-namespace:WifiAvalonia.ViewModels"
-	d:DesignHeight="495"
+	d:DesignHeight="510"
 	d:DesignWidth="800"
 	Background="WhiteSmoke"
 	Icon="avares://WifiAvalonia/Assets/winux.ico"
@@ -25,15 +25,12 @@
 			<Setter Property="Background" Value="Black" />
 			<Setter Property="Foreground" Value="Red" />
 		</Style>
-		<Style Selector="DataGrid.logs">
-			<Setter Property="ColumnWidth" Value="auto" />
-		</Style>
 	</Window.Styles>
 
 	<Grid
 		Margin="4"
 		ColumnDefinitions="80,70,80,100,80,210,50,120"
-		RowDefinitions="30,30,55,30,30,30,20,30,30,20,30,75,30,30">
+		RowDefinitions="30,30,55,30,30,30,20,30,30,20,30,92,30,30">
 		<TextBlock
 			Grid.Row="0"
 			Grid.Column="0"
@@ -86,13 +83,11 @@
 			Foreground="Black"
 			HorizontalGridLinesBrush="Black"
 			Items="{Binding InterfaceList}"
-			ScrollViewer.VerticalScrollBarVisibility="Auto"
 			SelectionMode="Single" />
 
 		<DataGrid
 			x:Name="LogGrid"
 			Grid.Row="4"
-			Classes="logs"
 			Grid.RowSpan="2"
 			Grid.Column="0"
 			Grid.ColumnSpan="8"
@@ -103,9 +98,7 @@
 			Background="Gray"
 			Foreground="Black"
 			HorizontalGridLinesBrush="Black"
-			Items="{Binding LogList}"
-			ScrollViewer.VerticalScrollBarVisibility="Auto"
-			SelectionMode="Single" />
+			Items="{Binding LogList}" />
 
 		<!-- Attack Result Data Grid
 		<DataGrid
@@ -133,11 +126,11 @@
 				Grid.Column="0"
 				Grid.ColumnSpan="8"
 				Width="780"
-				Height="150"
+				Height="172"
+				ScrollViewer.HorizontalScrollBarVisibility="Auto"
 				Padding="10"
 				Background="Black"
 				Foreground="White"
-				ScrollViewer.VerticalScrollBarVisibility="Auto"
 				Text="" />
 			<TextBox
 				x:Name="SelectedInterface"

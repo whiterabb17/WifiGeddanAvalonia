@@ -40,15 +40,15 @@ namespace WifiAvalonia.ViewModels
 			DisableInterface = ReactiveCommand.Create(DisableAdapter);
 			GetIFaceMode = ReactiveCommand.Create(GetAdapterMode);
 			StartAiroDumpScan = ReactiveCommand.Create(AiroDumpThread);
-			IFaceMode = GetInterfaceMode();
+		//	IFaceMode = GetInterfaceMode();
 			if (WorkingOS == "Windows")
 				InterfaceList = new ObservableCollection<NetInterfaces>(GenerateInterfaceInfoTable());
 			else 
 				InterfaceList = new ObservableCollection<NetInterfaces>(GenerateInterfaceCollection());
 			//  StartUp();
 			//  GenerateCounts();
-			if (ViewHolder._mainWindow != null)
-				checkForDeps(ViewHolder._mainWindow);
+			//if (ViewHolder._mainWindow != null)
+			//	checkForDeps(ViewHolder._mainWindow);
 		}
 
 		#region ReactiveCommands
@@ -63,7 +63,7 @@ namespace WifiAvalonia.ViewModels
 		#region Variables
 		public static string? IFaceMode { get;set; }
 		public static MainWindowViewModel? _Main { get; set; }
-		private static Random random = new Random();
+		//private static Random random = new Random();
 		private static Thread? AiroThread
 		{
 			get; set;
@@ -72,10 +72,16 @@ namespace WifiAvalonia.ViewModels
 		{
 			get; set;
 		}
+		private void StartAiroDump()
+		{
+			AiroThread = new Thread(AiroDumpThread);
+			AiroThread.Start();
+			AiroThread.IsBackground = true;
+		}
 		public ObservableCollection<NetInterfaces> InterfaceList { get; }
 		public ObservableCollection<Logs> LogList { get; }
 		public ObservableCollection<string> AvailableInterfaces { get; }
-		internal static string selectedInterface = "Ethernet";
+		internal static string selectedInterface = "";
 		private static string? WorkingOS
 		{
 			get; set;
@@ -88,6 +94,7 @@ namespace WifiAvalonia.ViewModels
 				WorkingOS = "Windows";
 			else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
 				WorkingOS = "Linux";
+			Console.WriteLine($"\n\n\n{WorkingOS}\n\n\n");
 			//ViewHolder._mainWindow.ClientCount.Text = "Clients: 0";
 		}
 		
@@ -112,6 +119,7 @@ namespace WifiAvalonia.ViewModels
 			}
 			else
 			{
+				Console.WriteLine("\n\n\nLINUX SYSTEM\n\n\n");
 			//	var root = runAndReturn("whoami", "", "");
 			//	if (root.ToString() != "root")
 			//		await MessageBox.Show(window, "Must be run as root", "Linux Permission Error", MessageBox.MessageBoxButtons.Ok);
@@ -188,7 +196,7 @@ namespace WifiAvalonia.ViewModels
 						State = _i.State,
 						Mode = mode.ToString().Replace("\r\n", "")
 					};
-					runAndReturn("ifconfig", "", $"{_i.Name} up");
+					runAndReturn("sudo ifconfig", "", $"{_i.Name} up");
 					InsertIface(selIface, mode);
 				}
 			}
@@ -210,7 +218,7 @@ namespace WifiAvalonia.ViewModels
 			}
 			else if (WorkingOS == "Linux")
 			{
-				runAndReturn("airmon-ng", "", $"stop \"{selectedInterface}\"");
+				runAndReturn("sudo airmon-ng", "", $"stop \"{selectedInterface}\"");
 				mode = "managed";
 			}
 			var _ilist = interfaceList();
@@ -239,10 +247,10 @@ namespace WifiAvalonia.ViewModels
 		{
 			if (WorkingOS == "Linux")
 			{
-				ensureFile("airodump.buf", "", true);
-				AiroThread = new Thread(() => runAndRead("airodump-ng", "", $"--enc wpa {selectedInterface}"));
-                AiroThread.Start();
-                AiroThread.IsBackground = true;
+				//ensureFile("airodump.buf", "", true);    "top", "", "")); 
+				AiroThread = new Thread(() => runAndRead("airodump-ng", "", $"--enc wpa {selectedInterface} -w airodump --output-format csv --write-interval 10"));
+				AiroThread.Start();
+				AiroThread.IsBackground = true;
 				var log = new Logs
 				{
 					LogTime = DateTime.Now.ToLongTimeString(),
@@ -259,41 +267,48 @@ namespace WifiAvalonia.ViewModels
 				};
 				InsertLog(log);
 			}
-            var count = 0;
-            while (count <= 120)
-            {
-                Thread.Sleep(1000);
-                count++;
-                if (count == 120)
-                {
-                    foreach (Process ps in Process.GetProcesses())
-                    {
-                        if (ps.ProcessName.Contains("airodump"))
-                            ps.Kill();
-                        mustBreakLoop = true;
-                    }
-                }
-            }
+			var count = 0;
+			while (count <= 120)
+			{
+				Thread.Sleep(1000);
+				count++;
+				if (count == 120)
+				{
+					foreach (Process ps in Process.GetProcesses())
+					{
+						if (ps.ProcessName.Contains("airodump"))
+							ps.Kill();
+						mustBreakLoop = true;
+					}
+				}
+			}
 		}
 		private async void LogThread(StreamReader stream)
 		{
 			var count = 0;
-			var logstream = "";
 			if (LogCollectionThread != null)
 			{
 				while (LogCollectionThread.IsAlive)
 				{
 					count++;
+					var text = "";
 					await Task.Delay(1000);
 					// TODO: Implement a stream reader to read the file as it fills with data
 					//var swriter = StreamReader()
-					logstream += stream.ReadLineAsync();
+					//logstream += stream.ReadLineAsync();
 					if (count == 10)
 					{
-						var curlogs = logstream;
-						if (ViewHolder._mainWindow != null)
-							if (curlogs != null)
-								await Dispatcher.UIThread.InvokeAsync(() => ViewHolder._mainWindow.insertData(curlogs), DispatcherPriority.Background);
+						var files = Directory.GetFiles(Directory.GetCurrentDirectory());
+						foreach (var file in files)
+						{
+							if (file.Contains("airodump"))
+							{
+								text = File.ReadAllText(file);
+								if (ViewHolder._mainWindow != null)
+									await Dispatcher.UIThread.InvokeAsync(() => ViewHolder._mainWindow.insertData(text), DispatcherPriority.Background);
+							}
+						}
+						
 					}
 				}
 			}
@@ -303,6 +318,13 @@ namespace WifiAvalonia.ViewModels
 			LogCollectionThread = new Thread(() => LogThread(file));
 			LogCollectionThread.Start();
 			LogCollectionThread.IsBackground = true;
+		}
+		private async Task pauseThread()
+		{
+				var text = File.ReadAllText("log.file");
+				if (ViewHolder._mainWindow != null && text != null)
+						await Dispatcher.UIThread.InvokeAsync(() => ViewHolder._mainWindow.insertData(text), DispatcherPriority.Background);
+				File.Delete("log.file");
 		}
 		private void EnableAdapter()
 		{
@@ -453,13 +475,9 @@ namespace WifiAvalonia.ViewModels
 		}
 		private string GetInterfaceMode()
 		{
-			if (selectedInterface != "")
+			if (!string.IsNullOrEmpty(selectedInterface) && WorkingOS == "Windows")
 			{
-				var mode = "";
-				if (WorkingOS == "Windows")
-				{
-					mode = runAndReturn("C:\\Windows\\System32\\Npcap\\wlanhelper.exe", "C:\\Windows\\System32\\Npcap", $"\"{selectedInterface}\" mode");
-				}
+				var mode = runAndReturn("C:\\Windows\\System32\\Npcap\\wlanhelper.exe", "C:\\Windows\\System32\\Npcap", $"\"{selectedInterface}\" mode");
 				Console.WriteLine(mode);
 				SetModeLabel(mode.ToString().Replace("\r\n", ""));
 				return mode;
@@ -496,7 +514,9 @@ namespace WifiAvalonia.ViewModels
 				File.Delete("interface.log");
 			if (WorkingOS == "Windows")
 			{
-				File.WriteAllText("interface.log", runAndReturn("netsh.exe", "", "interface show interface"));
+                var returnInfo = runAndReturn("netsh.exe", "", "interface show interface");
+                Console.WriteLine(returnInfo);
+                File.WriteAllText("interface.log", returnInfo);
 				File.SetAttributes("interface.log", FileAttributes.Hidden);
 				string[] interfaces = File.ReadAllLines("interface.log");
 				File.Delete("interface.log");
@@ -576,12 +596,12 @@ namespace WifiAvalonia.ViewModels
 		#endregion Initializers
 
 		#region Functions
-		private static string RandomString(int length)
-		{
-			const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-			return new string(Enumerable.Repeat(chars, length)
-				.Select(s => s[random.Next(s.Length)]).ToArray());
-		}
+		//private static string RandomString(int length)
+		//{
+		//	const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+		//	return new string(Enumerable.Repeat(chars, length)
+		//		.Select(s => s[random.Next(s.Length)]).ToArray());
+		//}
 		public async void AddLogs(List<NetInterfaces> interfaceList)
 		{
 			foreach (var iface in interfaceList)
@@ -690,23 +710,33 @@ namespace WifiAvalonia.ViewModels
 				proc.Start();
 				while (!proc.StandardOutput.EndOfStream)
 				{
-					var chars = proc.StandardOutput.ReadLine();
-                    str += chars.ToString() + "\n";
-                    //for (var i = 0; i < await chars.ConfigureAwait(false); i++)
-                    //{
-                    //var _str = Convert.ToChar(bb[i]);                    
-                    //    str += _str;
-                    Console.WriteLine(str);
-                    ScanData += str;
-                    //GetTextAsync();
-                    if (ViewHolder._mainWindow != null && chars != null)
-                        await Dispatcher.UIThread.InvokeAsync(() => ViewHolder._mainWindow.insertData(ScanData), DispatcherPriority.Background);
+					#region OldCollection
+					//	var chars = proc.StandardOutput.ReadLine();
+					// str += chars.ToString() + "\n";
+					//for (var i = 0; i < await chars.ConfigureAwait(false); i++)
+					//{
+					//var _str = Convert.ToChar(bb[i]);                    
+					//    str += _str;
+					//Console.WriteLine(str);
+					// ScanData += str;
+					//GetTextAsync();
+					#endregion OldCollection
+					StartLogThread(proc.StandardOutput);
+					//var chars = proc.StandardOutput.ReadLine();
 
-                            //await Dispatcher.UIThread.InvokeAsync(() => ViewHolder._mainWindow.addLogs(str), DispatcherPriority.Background);
-				//	}
-						//Console.WriteLine(logstream);
+					//if (ViewHolder._mainWindow != null)
+					//	Dispatcher.UIThread.InvokeAsync(() => ViewHolder._mainWindow.insertData(chars + "\r\n"), DispatcherPriority.Background);
+	//                collection(str);
+					//for (var i = 0; i < await chars.ConfigureAwait(false); i++)
+					//{
+					//var _str = Convert.ToChar(bb[i]);                    
+					//    str += _str;
 					
+					//await Dispatcher.UIThread.InvokeAsync(() => ViewHolder._mainWindow.addLogs(str), DispatcherPriority.Background);
+					//	}
+					//Console.WriteLine(logstream);
 				}
+				try { if (LogCollectionThread != null) { LogCollectionThread.Abort(); } } catch (Exception ex) { Console.WriteLine(ex.Message); }
 			}
 			catch (Exception ex)
 			{ 
@@ -714,7 +744,16 @@ namespace WifiAvalonia.ViewModels
 				File.AppendAllText("error.log", ex.Message);
 			}
 		}
-        private static bool mustBreakLoop = false;
+		private async void collection(string str)
+		{
+			Console.WriteLine(str);
+			ScanData += str;
+			ensureFile("log.file", "", true);
+			File.AppendAllText("log.file", ScanData);
+			await pauseThread();
+			str = "";
+		}
+		private static bool mustBreakLoop = false;
 		private string runAndReturn(string process, string directory = "", string command = "")
 		{
 			var _info = "";
@@ -733,7 +772,7 @@ namespace WifiAvalonia.ViewModels
 					}
 				};
 				proc.Start();
-				while (!proc.StandardOutput.EndOfStream || !mustBreakLoop)
+				while (!proc.StandardOutput.EndOfStream)
 				{
 					_info = proc.StandardOutput.ReadToEnd();
 				}
@@ -770,7 +809,7 @@ namespace WifiAvalonia.ViewModels
 				{
 					if (iface.StartsWith("Enabled") || iface.StartsWith("Disabled"))
 					{
-						string[] values = iface.Split(' ');
+						var values = iface.Split(' ');
 						//int inner = 0;
 						var _iface = new NetInterfaces()
 						{
@@ -800,7 +839,7 @@ namespace WifiAvalonia.ViewModels
 						else if (values[8] == "Disconnected")
 						{
 							int _ = 0;
-							string _name = "";
+							var _name = "";
 							foreach (string val in values)
 							{
 								_++;
