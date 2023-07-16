@@ -5,7 +5,7 @@
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:vm="clr-namespace:WifiAvalonia.ViewModels"
-	d:DesignHeight="510"
+	d:DesignHeight="760"
 	d:DesignWidth="800"
 	Background="WhiteSmoke"
 	Icon="avares://WifiAvalonia/Assets/winux.ico"
@@ -30,7 +30,7 @@
 	<Grid
 		Margin="4"
 		ColumnDefinitions="80,70,80,100,80,210,50,120"
-		RowDefinitions="30,30,55,30,30,30,20,30,30,20,30,92,30,30">
+		RowDefinitions="30,30,55,30,30,30,20,30,30,20,30,347,30,30">
 		<TextBlock
 			Grid.Row="0"
 			Grid.Column="0"
@@ -101,37 +101,44 @@
 			Items="{Binding LogList}" />
 
 		<!-- Attack Result Data Grid
-		<DataGrid
-			x:Name="LogGrid"
-			Grid.Row="7"
-			Grid.RowSpan="4"
-			Grid.Column="2"
-			Grid.ColumnSpan="6"
-			Width="645"
-			AutoGenerateColumns="True"
-			Background="Gray"
-			ColumnWidth="1*"
-			Foreground="Black"
-			HorizontalGridLinesBrush="Black"
-			ScrollViewer.VerticalScrollBarVisibility="Auto" />
+		
 		-->
 		<StackPanel
 			Grid.Row="8"
 			Grid.Column="0"
 			Grid.ColumnSpan="8">
-			<TextBlock
-				x:Name="ScanBox"
-				Grid.Row="9"
-				Grid.RowSpan="1"
+			<DataGrid
+				x:Name="RouterTable"
+				Grid.Row="4"
+				Grid.RowSpan="2"
 				Grid.Column="0"
 				Grid.ColumnSpan="8"
 				Width="780"
-				Height="172"
+				Height="175"
+				Padding="5,0,10,0"
+				AutoGenerateColumns="True"
+				Background="Gray"
+				Foreground="Black"
 				ScrollViewer.HorizontalScrollBarVisibility="Auto"
-				Padding="10"
-				Background="Black"
-				Foreground="White"
-				Text="" />
+				ScrollViewer.VerticalScrollBarVisibility="Auto"
+				HorizontalGridLinesBrush="Black"
+				Items="{Binding RouterTable}" />
+			<DataGrid
+				x:Name="DeviceTable"
+				Grid.Row="4"
+				Grid.RowSpan="2"
+				Grid.Column="0"
+				Grid.ColumnSpan="8"
+				ScrollViewer.HorizontalScrollBarVisibility="Auto"
+				ScrollViewer.VerticalScrollBarVisibility="Auto"
+				Width="780"
+				Height="252"
+				Padding="5,0,10,0"
+				AutoGenerateColumns="True"
+				Background="Gray"
+				Foreground="Black"
+				HorizontalGridLinesBrush="Black"
+				Items="{Binding DeviceTable}" />
 			<TextBox
 				x:Name="SelectedInterface"
 				Grid.Row="5"
@@ -147,24 +154,24 @@
 			<Button
 				Grid.Column="2"
 				Width="145"
-				Height="32"
+				Height="30"
 				Command="{Binding EnableMonMode}"
 				Content="Enable Mon Mode" />
 			<Button
 				Width="145"
-				Height="32"
+				Height="30"
 				Command="{Binding DisableMonMode}"
 				Content="Disable Mon Mode" />
 		</StackPanel>
 		<StackPanel Grid.Row="12" Grid.Column="2">
 			<Button
 				Width="145"
-				Height="32"
+				Height="30"
 				Command="{Binding EnableInterface}"
 				Content=" Enable Interface" />
 			<Button
 				Width="145"
-				Height="32"
+				Height="30"
 				Command="{Binding DisableInterface}"
 				Content=" Disable Interface" />
 		</StackPanel>
@@ -200,7 +207,7 @@
 			Width="120"
 			Height="30"
 			Command="{Binding GetAdapterMode}"
-			Content="Select"
+			Content="        Select"
 			HorizontalAlignment="Center" />
 		<Button
 			Grid.Row="13"

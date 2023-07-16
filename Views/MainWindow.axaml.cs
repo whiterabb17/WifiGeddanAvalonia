@@ -1,7 +1,12 @@
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using ReactiveUI;
 using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 using WifiAvalonia.Models;
 using WifiAvalonia.ViewModels;
 
@@ -12,7 +17,7 @@ namespace WifiAvalonia.Views
         public MainWindow()
         {
             this.Width = 800;
-            this.Height = 500;
+            this.Height = 760;
             InitializeComponent();
             AvaloniaXamlLoader.Load(this);
             ViewHolder._mainWindow = this;
@@ -25,13 +30,8 @@ namespace WifiAvalonia.Views
         }
         private void SendAdmMsg(object? sender, RoutedEventArgs e)
         {
-                
-        }
-        internal void insertData(string mode)
-        {
-            var selectedIface = this.FindControl<TextBlock>("ScanBox");
-          //  selectedIface.Text = "";
-            selectedIface.Text += mode;
+            var Sender = this.FindControl<Button>("SendBtn");
+            Sender.Content = "Stop Airodump";
         }
         internal void setIFaceMode(string mode)
         {

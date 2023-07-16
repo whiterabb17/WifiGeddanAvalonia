@@ -22,6 +22,15 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Http;
 using System.Runtime.InteropServices;
+using Avalonia.Controls.Shapes;
+using System.Data;
+using DynamicData;
+using System.Formats.Asn1;
+using System.Globalization;
+using CsvHelper;
+using CsvHelper.Configuration;
+using dnlib.DotNet.MD;
+using SixLabors.ImageSharp;
 
 namespace WifiAvalonia.ViewModels
 {
@@ -33,6 +42,8 @@ namespace WifiAvalonia.ViewModels
 			_Main = this;
 			SetWorkingSystem();
 			LogList = new ObservableCollection<Logs>(GenerateInitialLogTable());
+			RouterTable = new ObservableCollection<AiroDumpRouters>(GenerateAiroRouterTable());
+			DeviceTable = new ObservableCollection<AiroDumpDevices>(GenerateAiroDeviceTable());
 			AvailableInterfaces = new ObservableCollection<string>(GenerateInterfaceChoices());
 			EnableMonMode = ReactiveCommand.Create(EnableMonitorMode);
 			DisableMonMode = ReactiveCommand.Create(DisableMonitorMode);
@@ -40,15 +51,12 @@ namespace WifiAvalonia.ViewModels
 			DisableInterface = ReactiveCommand.Create(DisableAdapter);
 			GetIFaceMode = ReactiveCommand.Create(GetAdapterMode);
 			StartAiroDumpScan = ReactiveCommand.Create(AiroDumpThread);
-		//	IFaceMode = GetInterfaceMode();
 			if (WorkingOS == "Windows")
 				InterfaceList = new ObservableCollection<NetInterfaces>(GenerateInterfaceInfoTable());
-			else 
+			else
 				InterfaceList = new ObservableCollection<NetInterfaces>(GenerateInterfaceCollection());
-			//  StartUp();
-			//  GenerateCounts();
-			//if (ViewHolder._mainWindow != null)
-			//	checkForDeps(ViewHolder._mainWindow);
+			if (ViewHolder._mainWindow != null)
+				checkForDeps(ViewHolder._mainWindow);
 		}
 
 		#region ReactiveCommands
@@ -61,33 +69,340 @@ namespace WifiAvalonia.ViewModels
 		#endregion ReactiveCommands
 
 		#region Variables
-		public static string? IFaceMode { get;set; }
+		private static bool mustBreakLoop = false;
+		private static bool airoDumpRunning = false;
+        public static string? IFaceMode { get; set; }
 		public static MainWindowViewModel? _Main { get; set; }
-		//private static Random random = new Random();
-		private static Thread? AiroThread
-		{
-			get; set;
-		}
-		private static Thread? LogCollectionThread
-		{
-			get; set;
-		}
-		private void StartAiroDump()
-		{
-			AiroThread = new Thread(AiroDumpThread);
-			AiroThread.Start();
-			AiroThread.IsBackground = true;
-		}
-		public ObservableCollection<NetInterfaces> InterfaceList { get; }
+		private static Thread? AiroThread {	get; set; }
+		public ObservableCollection<AiroDumpRouters> RouterTable { get; }
+		public ObservableCollection<AiroDumpDevices> DeviceTable { get; }
+		public ObservableCollection<NetInterfaces> InterfaceList { get;	}
+		public ObservableCollection<DataTable> DataList { get; }
 		public ObservableCollection<Logs> LogList { get; }
 		public ObservableCollection<string> AvailableInterfaces { get; }
 		internal static string selectedInterface = "";
-		private static string? WorkingOS
-		{
-			get; set;
-		}
+		private static string? WorkingOS { get; set; }
 		#endregion Variables
-		#region Initializers
+		#region IEnumerables
+
+		private IEnumerable<AiroDumpRouters> GenerateAiroRouterTable()
+		{
+			List<AiroDumpRouters> table = new List<AiroDumpRouters>();
+			var configuration = new CsvConfiguration(CultureInfo.InvariantCulture)
+			{
+				HasHeaderRecord = false,
+				MissingFieldFound = null
+			};
+			string[] files = Directory.GetFiles(Directory.GetCurrentDirectory());
+			foreach (string file in files)
+			{
+				if (file.Contains("airscan"))
+				{
+					formatCSV(file);
+					var reader = new StreamReader("routers.csv");
+					var csv = new CsvReader(reader, configuration);
+					var _records = csv.GetRecords<AiroDumpRouters>();
+					List<AiroDumpRouters> _table = _records.ToList<AiroDumpRouters>();
+					for (int i = 0; i < _table.Count(); i++)
+					{
+						if (i > 0)
+							table.Add(_table[i]);
+					}
+				}
+			}
+			return table;
+		}
+		private IEnumerable<AiroDumpDevices> GenerateAiroDeviceTable()
+		{
+			List<AiroDumpDevices> table = new List<AiroDumpDevices>();
+			var configuration = new CsvConfiguration(CultureInfo.InvariantCulture)
+			{
+				HasHeaderRecord = false,
+				MissingFieldFound = null
+			};
+			string[] files = Directory.GetFiles(Directory.GetCurrentDirectory());
+			foreach (string file in files)
+			{
+				if (file.Contains("airscan"))
+				{
+					formatCSV(file);
+					var reader = new StreamReader("devices.csv");
+					var csv = new CsvReader(reader, configuration);
+					var _records = csv.GetRecords<AiroDumpDevices>();
+					List<AiroDumpDevices> _table = _records.ToList<AiroDumpDevices>();
+					for (int i = 0; i < _table.Count(); i++)
+					{
+						if (i > 0)
+							table.Add(_table[i]);
+					}
+				}
+			}
+			return table;
+		}
+		private IEnumerable<NetInterfaces> GenerateInterfaceCollection()
+		{
+			var interfaceList = new List<NetInterfaces>();
+			foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
+			{
+				string mon = "";
+				if (ni.Name.Contains("mon"))
+				{
+					mon = "monitor";
+				}
+				var iface = new NetInterfaces()
+				{
+					Enabled = "Enabled",
+					State = "Online",
+					Name = ni.Name,
+					Mode = mon
+				};
+				interfaceList.Add(iface);
+			}
+			return interfaceList;
+		}
+		private static IEnumerable<string> GenerateInterfaceChoices()
+		{
+			var defaultList = new List<string>();
+			foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
+			{
+				defaultList.Add($"{ni.Name}");
+			}
+			return defaultList;
+		}
+		private IEnumerable<Logs> GenerateInitialLogTable()
+		{
+			var logList = new List<Logs>();
+			var iniLog = new Logs
+			{
+				LogTime = DateTime.Now.ToLongTimeString(),
+				LogData = "ExampleLog Data"
+			};
+			logList.Add(iniLog);
+			return logList;
+		}
+		private IEnumerable<NetInterfaces> GenerateInterfaceInfoTable()
+		{
+			var interList = new List<NetInterfaces>();
+			if (File.Exists("interface.log"))
+				File.Delete("interface.log");
+			if (WorkingOS == "Windows")
+			{
+				var returnInfo = runAndReturn("netsh.exe", "", "interface show interface");
+				Console.WriteLine(returnInfo);
+				File.WriteAllText("interface.log", returnInfo);
+				File.SetAttributes("interface.log", FileAttributes.Hidden);
+				string[] interfaces = File.ReadAllLines("interface.log");
+				File.Delete("interface.log");
+				int linecount = 0;
+				foreach (string iface in interfaces)
+				{
+					linecount++;
+					if (linecount > 3)
+					{
+						if (iface.StartsWith("Enabled") || iface.StartsWith("Disabled"))
+						{
+							string[] values = iface.Split(' ');
+							//int inner = 0;
+							var _iface = new NetInterfaces()
+							{
+								Enabled = values[0]
+							};
+							switch (values[8])
+							{
+								case "Connected":
+									int _ = 0;
+									string _name = "";
+									_iface.State = "Online";
+									foreach (string val in values)
+									{
+										_++;
+										if (_ > 19)
+											_name += val + " ";
+									}
+									_iface.Name = _name.TrimEnd().TrimStart();
+									var mode = "";
+									if (WorkingOS == "Windows")
+									{
+										mode = runAndReturn("C:\\Windows\\System32\\Npcap\\wlanhelper.exe", "C:\\Windows\\System32\\Npcap", $"\"{_iface.Name}\" mode");
+									}
+									_iface.Mode = mode.ToString().Replace("\r\n", "");
+									SetModeLabel(mode.ToString().Replace("\r\n", ""));
+									interList.Add(_iface);
+									break;
+								case "Disconnected":
+									_iface.State = "Offline";
+									int __ = 0;
+									string __name = "";
+									foreach (string val in values)
+									{
+										__++;
+										if (__ > 19)
+										{
+											// MessageBox.Show(val);
+											__name += val + " ";
+										}
+									}
+									_iface.Name = __name.TrimEnd().TrimStart();
+									var _mode = "";
+									if (WorkingOS == "Windows")
+									{
+										_mode = runAndReturn("C:\\Windows\\System32\\Npcap\\wlanhelper.exe", "C:\\Windows\\System32\\Npcap", $"\"{_iface.Name}\" mode");
+									}
+									_iface.Mode = _mode.ToString().Replace("\r\n", "");
+									SetModeLabel(_mode.ToString().Replace("\r\n", ""));
+									interList.Add(_iface);
+									break;
+							}
+						}
+					}
+				}
+			}
+			else
+			{
+				File.WriteAllText("interface.log", runAndReturn("iwconfig"));
+			}
+
+			if (File.Exists("interface.log"))
+				File.Delete("interface.log");
+			return interList;
+		}
+        #endregion IEnumerables
+        #region Lists
+        private List<NetInterfaces> interfaceList()
+        {
+            var interList = new List<NetInterfaces>();
+            if (File.Exists("interface.log"))
+                File.Delete("interface.log");
+            if (WorkingOS == "Windows")
+            {
+                File.WriteAllText("interface.log", runAndReturn("netsh.exe", "", "interface show interface"));
+            }
+            else
+            {
+                File.WriteAllText("interface.log", runAndReturn("iwconfig"));
+            }
+            File.SetAttributes("interface.log", FileAttributes.Hidden);
+            string[] interfaces = File.ReadAllLines("interface.log");
+            File.Delete("interface.log");
+            int linecount = 0;
+            foreach (var iface in interfaces)
+            {
+                linecount++;
+                if (linecount > 3)
+                {
+                    if (iface.StartsWith("Enabled") || iface.StartsWith("Disabled"))
+                    {
+                        var values = iface.Split(' ');
+                        //int inner = 0;
+                        var _iface = new NetInterfaces()
+                        {
+                            Enabled = values[0],
+                            State = values[8]
+                        };
+                        if (values[8] == "Connected")
+                        {
+                            int _ = 0;
+                            string _name = "";
+                            foreach (string val in values)
+                            {
+                                _++;
+                                if (_ > 19)
+                                    _name += val + " ";
+                            }
+                            _iface.Name = _name.TrimEnd().TrimStart();
+                            var mode = "";
+                            if (WorkingOS == "Windows")
+                            {
+                                mode = runAndReturn("C:\\Windows\\System32\\Npcap\\wlanhelper.exe", "C:\\Windows\\System32\\Npcap", $"\"{_iface.Name}\" mode");
+                            }
+                            _iface.Mode = mode.ToString().Replace("\r\n", "");
+                            SetModeLabel(mode.ToString().Replace("\r\n", ""));
+                            interList.Add(_iface);
+                        }
+                        else if (values[8] == "Disconnected")
+                        {
+                            int _ = 0;
+                            var _name = "";
+                            foreach (string val in values)
+                            {
+                                _++;
+                                if (_ > 19)
+                                {
+                                    // MessageBox.Show(val);
+                                    _name += val + " ";
+                                }
+                            }
+                            _iface.Name = _name.TrimEnd().TrimStart();
+                            var mode = "";
+                            if (WorkingOS == "Windows")
+                            {
+                                mode = runAndReturn("C:\\Windows\\System32\\Npcap\\wlanhelper.exe", "C:\\Windows\\System32\\Npcap", $"\"{_iface.Name}\" mode");
+                            }
+                            _iface.Mode = mode.ToString().Replace("\r\n", "");
+                            SetModeLabel(mode.ToString().Replace("\r\n", ""));
+                            interList.Add(_iface);
+                        }
+                    }
+                }
+            }
+            if (File.Exists("interface.log"))
+                File.Delete("interface.log");
+            return interList;
+        }
+        private List<NetInterfaces> GetNewInterfaceCollection()
+		{
+			var interfaceList = new List<NetInterfaces>();
+			foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
+			{
+				string mon = "";
+				if (ni.Name.Contains("mon"))
+					mon = "monitor";
+				var iface = new NetInterfaces()
+				{
+					Enabled = "Enabled",
+					State = "Online",
+					Name = ni.Name,
+					Mode = mon
+				};
+			interfaceList.Add(iface);
+			}
+			return interfaceList;
+		}
+		#endregion
+		#region Functions
+		private bool formatCSV(string path)
+		{
+			try
+			{
+				string[] files = Directory.GetFiles(Directory.GetCurrentDirectory());
+				foreach (string file in files)
+				{
+					if (file.Contains("airscan"))
+					{
+						string[] lines = File.ReadAllLines(path);
+						string routers = "";
+						string devices = "";
+						bool hitNull = false;
+						int nullCount = 0;
+						foreach (string line in lines)
+						{
+							if (string.IsNullOrEmpty(line) && !hitNull && nullCount == 0)
+								nullCount++;
+							else if (!string.IsNullOrEmpty(line) && !hitNull)
+								routers += line + "\n";
+							else if (string.IsNullOrEmpty(line) && !hitNull && nullCount > 0)
+								hitNull = true;
+							else if (!string.IsNullOrEmpty(line) && hitNull)
+								devices += line + "\n";
+						}
+						File.WriteAllText("devices.csv", devices);
+						File.WriteAllText("routers.csv", routers);
+					}
+				}
+				return true;
+			}
+			catch { return false; }
+		}
 		private void SetWorkingSystem()
 		{
 			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -97,7 +412,7 @@ namespace WifiAvalonia.ViewModels
 			Console.WriteLine($"\n\n\n{WorkingOS}\n\n\n");
 			//ViewHolder._mainWindow.ClientCount.Text = "Clients: 0";
 		}
-		
+
 
 		private async void ShowError(Window window)
 		{
@@ -120,55 +435,12 @@ namespace WifiAvalonia.ViewModels
 			else
 			{
 				Console.WriteLine("\n\n\nLINUX SYSTEM\n\n\n");
-			//	var root = runAndReturn("whoami", "", "");
-			//	if (root.ToString() != "root")
-			//		await MessageBox.Show(window, "Must be run as root", "Linux Permission Error", MessageBox.MessageBoxButtons.Ok);
+				//	var root = runAndReturn("whoami", "", "");
+				//	if (root.ToString() != "root")
+				//		await MessageBox.Show(window, "Must be run as root", "Linux Permission Error", MessageBox.MessageBoxButtons.Ok);
 			}
 		}
 
-		#region Interface Class Filler
-		private IEnumerable<NetInterfaces> GenerateInterfaceCollection()
-		{
-			var interfaceList = new List<NetInterfaces>();
-			foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
-			{
-				string mon = "";
-				if (ni.Name.Contains("mon"))
-				{
-					mon = "monitor";
-				}
-				var iface = new NetInterfaces()
-				{
-					Enabled = "Enabled",
-					State = "Online",
-					Name = ni.Name,
-					Mode = mon
-				};
-				interfaceList.Add(iface);
-			}
-			return interfaceList;
-		}
-
-		private List<NetInterfaces> GetNewInterfaceCollection()
-		{
-			var interfaceList = new List<NetInterfaces>();
-			foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
-			{
-				string mon = "";
-				if (ni.Name.Contains("mon"))
-					mon = "monitor";
-				var iface = new NetInterfaces()
-				{
-					Enabled = "Enabled",
-					State = "Online",
-					Name = ni.Name,
-					Mode = mon
-				};
-				interfaceList.Add(iface);
-			}
-			return interfaceList;
-		}
-		#endregion Interface Class Filler
 		private void EnableMonitorMode()
 		{
 			var mode = "managed";
@@ -207,7 +479,6 @@ namespace WifiAvalonia.ViewModels
 			};
 			InsertLog(log);
 		}
-
 		private void DisableMonitorMode()
 		{
 			var mode = "monitor";
@@ -245,86 +516,88 @@ namespace WifiAvalonia.ViewModels
 		}
 		private void AiroDumpThread()
 		{
-			if (WorkingOS == "Linux")
+			if (!airoDumpRunning)
 			{
-				//ensureFile("airodump.buf", "", true);    "top", "", "")); 
-				AiroThread = new Thread(() => runAndRead("airodump-ng", "", $"--enc wpa {selectedInterface} -w airodump --output-format csv --write-interval 10"));
-				AiroThread.Start();
-				AiroThread.IsBackground = true;
-				var log = new Logs
+				if (WorkingOS == "Linux")
 				{
-					LogTime = DateTime.Now.ToLongTimeString(),
-					LogData = "Starting Airodump on " + selectedInterface
-				};
-				InsertLog(log);
+					//ensureFile("airodump.buf", "", true);    "top", "", "")); 
+					AiroThread = new Thread(() => runAndRead("airodump-ng", "", $"--enc wpa {selectedInterface} -w airscan --output-format csv --write-interval 10"));
+					AiroThread.Start();
+					AiroThread.IsBackground = true;
+					var log = new Logs
+					{
+						LogTime = DateTime.Now.ToLongTimeString(),
+						LogData = "Starting Airodump on " + selectedInterface
+					};
+					InsertLog(log);
+				}
+				else
+				{
+					var log = new Logs
+					{
+						LogTime = DateTime.Now.ToLongTimeString(),
+						LogData = "Not supported on Windows OS yet"
+					};
+					InsertLog(log);
+				}
 			}
 			else
 			{
-				var log = new Logs
+				foreach (Process ps in Process.GetProcesses())
 				{
-					LogTime = DateTime.Now.ToLongTimeString(),
-					LogData = "Not supported on Windows OS yet"
-				};
-				InsertLog(log);
-			}
-			var count = 0;
-			while (count <= 120)
-			{
-				Thread.Sleep(1000);
-				count++;
-				if (count == 120)
-				{
-					foreach (Process ps in Process.GetProcesses())
-					{
-						if (ps.ProcessName.Contains("airodump"))
-							ps.Kill();
-						mustBreakLoop = true;
-					}
+					if (ps.ProcessName.Contains("airodump"))
+						ps.Kill();
+					mustBreakLoop = true;
+					breakRunLoop = true;
 				}
+				fillAiroTables();
 			}
 		}
-		private async void LogThread(StreamReader stream)
+		private async void fillAiroTables()
 		{
-			var count = 0;
-			if (LogCollectionThread != null)
+			var configuration = new CsvConfiguration(CultureInfo.InvariantCulture)
 			{
-				while (LogCollectionThread.IsAlive)
+				HasHeaderRecord = false,
+				MissingFieldFound = null
+			};
+			List<AiroDumpDevices> _devices = new List<AiroDumpDevices>();
+			List<AiroDumpRouters> _routers = new List<AiroDumpRouters>();
+			string[] files = Directory.GetFiles(Directory.GetCurrentDirectory());
+			foreach (string file in files)
+			{
+				if (file.Contains("airscan"))
 				{
-					count++;
-					var text = "";
-					await Task.Delay(1000);
-					// TODO: Implement a stream reader to read the file as it fills with data
-					//var swriter = StreamReader()
-					//logstream += stream.ReadLineAsync();
-					if (count == 10)
+					formatCSV(file);
+					if (File.Exists("devices.csv"))
 					{
-						var files = Directory.GetFiles(Directory.GetCurrentDirectory());
-						foreach (var file in files)
+						var reader = new StreamReader("devices.csv");
+						var csv = new CsvReader(reader, configuration);
+						var _records = csv.GetRecords<AiroDumpDevices>();
+						List<AiroDumpDevices> _table = _records.ToList<AiroDumpDevices>();
+						for (int i = 0; i < _table.Count(); i++)
 						{
-							if (file.Contains("airodump"))
-							{
-								text = File.ReadAllText(file);
-								if (ViewHolder._mainWindow != null)
-									await Dispatcher.UIThread.InvokeAsync(() => ViewHolder._mainWindow.insertData(text), DispatcherPriority.Background);
-							}
+							if (i > 0)
+								_devices.Add(_table[i]);
 						}
-						
+						await Task.Delay(200);
+						File.Delete("devices.csv");
 					}
-				}
+					if (File.Exists("routers.csv"))
+					{
+						var reader = new StreamReader("devices.csv");
+						var csv = new CsvReader(reader, configuration);
+						var _records = csv.GetRecords<AiroDumpRouters>();
+						List<AiroDumpRouters> _table = _records.ToList<AiroDumpRouters>();
+						for (int i = 0; i < _table.Count(); i++)
+						{
+							if (i > 0)
+								_routers.Add(_table[i]);
+						}
+						await Task.Delay(200);
+						File.Delete("routers.csv");
+					}
+				}                
 			}
-		}
-		private void StartLogThread(StreamReader file)
-		{
-			LogCollectionThread = new Thread(() => LogThread(file));
-			LogCollectionThread.Start();
-			LogCollectionThread.IsBackground = true;
-		}
-		private async Task pauseThread()
-		{
-				var text = File.ReadAllText("log.file");
-				if (ViewHolder._mainWindow != null && text != null)
-						await Dispatcher.UIThread.InvokeAsync(() => ViewHolder._mainWindow.insertData(text), DispatcherPriority.Background);
-				File.Delete("log.file");
 		}
 		private void EnableAdapter()
 		{
@@ -359,7 +632,6 @@ namespace WifiAvalonia.ViewModels
 				InterfaceList.Add(net2);
 			}
 		}
-
 		private void DisableAdapter()
 		{
 			ProcessStartInfo psi = new ProcessStartInfo("netsh", "interface set interface \"" + selectedInterface + "\" disable");
@@ -393,7 +665,6 @@ namespace WifiAvalonia.ViewModels
 				InterfaceList.Add(net2);
 			}
 		}
-
 		private async void GetAdapterMode()
 		{
 			var log = new Logs
@@ -487,128 +758,6 @@ namespace WifiAvalonia.ViewModels
 				return "";
 			}
 		}
-		private static IEnumerable<string> GenerateInterfaceChoices()
-		{
-			var defaultList = new List<string>();
-			foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
-			{
-				defaultList.Add($"{ni.Name}");
-			}
-			return defaultList;
-		}
-		private IEnumerable<Logs> GenerateInitialLogTable()
-		{
-			var logList = new List<Logs>();
-			var iniLog = new Logs
-			{
-				LogTime = DateTime.Now.ToLongTimeString(),
-				LogData = "ExampleLog Data"
-			};
-			logList.Add(iniLog);
-			return logList;
-		}
-		private IEnumerable<NetInterfaces> GenerateInterfaceInfoTable()
-		{
-			var interList = new List<NetInterfaces>();
-			if (File.Exists("interface.log"))
-				File.Delete("interface.log");
-			if (WorkingOS == "Windows")
-			{
-                var returnInfo = runAndReturn("netsh.exe", "", "interface show interface");
-                Console.WriteLine(returnInfo);
-                File.WriteAllText("interface.log", returnInfo);
-				File.SetAttributes("interface.log", FileAttributes.Hidden);
-				string[] interfaces = File.ReadAllLines("interface.log");
-				File.Delete("interface.log");
-				int linecount = 0;
-				foreach (string iface in interfaces)
-				{
-					linecount++;
-					if (linecount > 3)
-					{
-						if (iface.StartsWith("Enabled") || iface.StartsWith("Disabled"))
-						{
-							string[] values = iface.Split(' ');
-							//int inner = 0;
-							var _iface = new NetInterfaces()
-							{
-								Enabled = values[0]
-							};
-							switch (values[8])
-							{
-								case "Connected":
-									int _ = 0;
-									string _name = "";
-									_iface.State = "Online";
-									foreach (string val in values)
-									{
-										_++;
-										if (_ > 19)
-											_name += val + " ";
-									}
-									_iface.Name = _name.TrimEnd().TrimStart();
-									var mode = "";
-									if (WorkingOS == "Windows")
-									{
-										mode = runAndReturn("C:\\Windows\\System32\\Npcap\\wlanhelper.exe", "C:\\Windows\\System32\\Npcap", $"\"{_iface.Name}\" mode");
-									}
-									_iface.Mode = mode.ToString().Replace("\r\n", "");
-									SetModeLabel(mode.ToString().Replace("\r\n", ""));
-									interList.Add(_iface);
-									break;
-								case "Disconnected":
-									_iface.State = "Offline";
-									int __ = 0;
-									string __name = "";
-									foreach (string val in values)
-									{
-										__++;
-										if (__ > 19)
-										{
-											// MessageBox.Show(val);
-											__name += val + " ";
-										}
-									}
-									_iface.Name = __name.TrimEnd().TrimStart();
-									var _mode = "";
-									if (WorkingOS == "Windows")
-									{
-										_mode = runAndReturn("C:\\Windows\\System32\\Npcap\\wlanhelper.exe", "C:\\Windows\\System32\\Npcap", $"\"{_iface.Name}\" mode");
-									}
-									_iface.Mode = _mode.ToString().Replace("\r\n", "");
-									SetModeLabel(_mode.ToString().Replace("\r\n", ""));
-									interList.Add(_iface);
-									break;
-							}
-						}
-					}
-				}
-			}
-			else
-			{
-				File.WriteAllText("interface.log", runAndReturn("iwconfig"));
-			}
-			
-			if (File.Exists("interface.log"))
-				File.Delete("interface.log");
-			return interList;
-		}
-		#endregion Initializers
-
-		#region Functions
-		//private static string RandomString(int length)
-		//{
-		//	const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-		//	return new string(Enumerable.Repeat(chars, length)
-		//		.Select(s => s[random.Next(s.Length)]).ToArray());
-		//}
-		public async void AddLogs(List<NetInterfaces> interfaceList)
-		{
-			foreach (var iface in interfaceList)
-			{
-				await Dispatcher.UIThread.InvokeAsync(() => InsertIface(iface), DispatcherPriority.Background);
-			}
-		}
 		public async void SetModeLabel(string imode)
 		{
 			await Dispatcher.UIThread.InvokeAsync(() => IFaceMode = imode, DispatcherPriority.Background);
@@ -619,7 +768,7 @@ namespace WifiAvalonia.ViewModels
 		{
 			var mode = "";
 			if (WorkingOS == "Windows")
-			{            
+			{
 				mode = runAndReturn("C:\\Windows\\System32\\Npcap\\wlanhelper.exe", "C:\\Windows\\System32\\Npcap", $"\"{iface.Name}\" mode");
 			}
 			InterfaceList.Add(
@@ -641,24 +790,32 @@ namespace WifiAvalonia.ViewModels
 					LogData = log.LogData
 				});
 		}
+		public void InsertDevice(AiroDumpDevices device)
+		{
+			DeviceTable.Add(device);
+		}
+		public void InsertRouter(AiroDumpRouters device)
+		{
+			RouterTable.Add(device);
+		}
 		public void InsertIface(NetInterfaces iface, string mode)
 		{
 			InterfaceList.Clear();
-				InterfaceList.Add(
-					new NetInterfaces()
-					{
-						Enabled = iface.Enabled,
-						State = iface.State,
-						Name = iface.Name,
-						Mode = mode
-					});
+			InterfaceList.Add(
+				new NetInterfaces()
+				{
+					Enabled = iface.Enabled,
+					State = iface.State,
+					Name = iface.Name,
+					Mode = mode
+				});
 
 		}
 		public void InsertIface(NetInterfaces[] iface, string mode)
 		{
 			InterfaceList.Clear();
 			foreach (NetInterfaces net2 in iface)
-			{            
+			{
 				InterfaceList.Add(
 					new NetInterfaces()
 					{
@@ -674,7 +831,7 @@ namespace WifiAvalonia.ViewModels
 			if (_true)
 				LogList.Clear();
 		}
-	   
+
 		#endregion Functions
 
 		#region DataHandler
@@ -695,72 +852,6 @@ namespace WifiAvalonia.ViewModels
 			{
 				var proc = new Process
 				{
-						StartInfo = new ProcessStartInfo
-						{
-							FileName = process,
-							Arguments = command,
-							WorkingDirectory = directory,
-							UseShellExecute = false,
-							RedirectStandardOutput = true,
-							CreateNoWindow = true
-						}
-				};
-				char[] bb = new char[1024];
-				var str = "";
-				proc.Start();
-				while (!proc.StandardOutput.EndOfStream)
-				{
-					#region OldCollection
-					//	var chars = proc.StandardOutput.ReadLine();
-					// str += chars.ToString() + "\n";
-					//for (var i = 0; i < await chars.ConfigureAwait(false); i++)
-					//{
-					//var _str = Convert.ToChar(bb[i]);                    
-					//    str += _str;
-					//Console.WriteLine(str);
-					// ScanData += str;
-					//GetTextAsync();
-					#endregion OldCollection
-					StartLogThread(proc.StandardOutput);
-					//var chars = proc.StandardOutput.ReadLine();
-
-					//if (ViewHolder._mainWindow != null)
-					//	Dispatcher.UIThread.InvokeAsync(() => ViewHolder._mainWindow.insertData(chars + "\r\n"), DispatcherPriority.Background);
-	//                collection(str);
-					//for (var i = 0; i < await chars.ConfigureAwait(false); i++)
-					//{
-					//var _str = Convert.ToChar(bb[i]);                    
-					//    str += _str;
-					
-					//await Dispatcher.UIThread.InvokeAsync(() => ViewHolder._mainWindow.addLogs(str), DispatcherPriority.Background);
-					//	}
-					//Console.WriteLine(logstream);
-				}
-				try { if (LogCollectionThread != null) { LogCollectionThread.Abort(); } } catch (Exception ex) { Console.WriteLine(ex.Message); }
-			}
-			catch (Exception ex)
-			{ 
-				ensureFile("error.log", "WifiGeddan Error Log\n\n");
-				File.AppendAllText("error.log", ex.Message);
-			}
-		}
-		private async void collection(string str)
-		{
-			Console.WriteLine(str);
-			ScanData += str;
-			ensureFile("log.file", "", true);
-			File.AppendAllText("log.file", ScanData);
-			await pauseThread();
-			str = "";
-		}
-		private static bool mustBreakLoop = false;
-		private string runAndReturn(string process, string directory = "", string command = "")
-		{
-			var _info = "";
-			try
-			{
-				var proc = new Process
-				{
 					StartInfo = new ProcessStartInfo
 					{
 						FileName = process,
@@ -771,110 +862,82 @@ namespace WifiAvalonia.ViewModels
 						CreateNoWindow = true
 					}
 				};
+				char[] bb = new char[1024];
+				var str = "";
 				proc.Start();
+                looper();
 				while (!proc.StandardOutput.EndOfStream)
 				{
-					_info = proc.StandardOutput.ReadToEnd();
+					var chars = proc.StandardOutput.ReadLine();
+					Console.WriteLine(chars);
+					if (breakRunLoop)
+					{
+						foreach (Process ps in Process.GetProcesses())
+						{
+							if (ps.ProcessName.Contains("airodump"))
+								ps.Kill();
+						}
+						fillAiroTables();
+					}
 				}
-				return _info;
 			}
 			catch (Exception ex)
 			{
 				ensureFile("error.log", "WifiGeddan Error Log\n\n");
 				File.AppendAllText("error.log", ex.Message);
-				return ex.Message;
 			}
 		}
-		private List<NetInterfaces> interfaceList()
+		private static int runLoop = 0;
+		private static bool breakRunLoop = false;
+		private async void looper()
 		{
-			var interList = new List<NetInterfaces>();
-			if (File.Exists("interface.log"))
-				File.Delete("interface.log");
-			if (WorkingOS == "Windows")
+			while (runLoop < 120)
 			{
-				File.WriteAllText("interface.log", runAndReturn("netsh.exe", "", "interface show interface"));
+				runLoop++;
+				await Task.Delay(1000);
 			}
-			else
-			{
-				File.WriteAllText("interface.log", runAndReturn("iwconfig"));
-			}
-			File.SetAttributes("interface.log", FileAttributes.Hidden);
-			string[] interfaces = File.ReadAllLines("interface.log");
-			File.Delete("interface.log");
-			int linecount = 0;
-			foreach (var iface in interfaces)
-			{
-				linecount++;
-				if (linecount > 3)
-				{
-					if (iface.StartsWith("Enabled") || iface.StartsWith("Disabled"))
-					{
-						var values = iface.Split(' ');
-						//int inner = 0;
-						var _iface = new NetInterfaces()
-						{
-							Enabled = values[0],
-							State = values[8]
-						};
-						if (values[8] == "Connected")
-						{
-							int _ = 0;
-							string _name = "";
-							foreach (string val in values)
-							{
-								_++;
-								if (_ > 19)
-									_name += val + " ";
-							}
-							_iface.Name = _name.TrimEnd().TrimStart();
-							var mode = "";
-							if (WorkingOS == "Windows")
-							{
-								mode = runAndReturn("C:\\Windows\\System32\\Npcap\\wlanhelper.exe", "C:\\Windows\\System32\\Npcap", $"\"{_iface.Name}\" mode");
-							}
-							_iface.Mode = mode.ToString().Replace("\r\n", "");
-							SetModeLabel(mode.ToString().Replace("\r\n", ""));
-							interList.Add(_iface);
-						}
-						else if (values[8] == "Disconnected")
-						{
-							int _ = 0;
-							var _name = "";
-							foreach (string val in values)
-							{
-								_++;
-								if (_ > 19)
-								{
-									// MessageBox.Show(val);
-									_name += val + " ";
-								}
-							}
-							_iface.Name = _name.TrimEnd().TrimStart();
-							var mode = "";
-							if (WorkingOS == "Windows")
-							{
-								mode = runAndReturn("C:\\Windows\\System32\\Npcap\\wlanhelper.exe", "C:\\Windows\\System32\\Npcap", $"\"{_iface.Name}\" mode");
-							}
-							_iface.Mode = mode.ToString().Replace("\r\n", "");
-							SetModeLabel(mode.ToString().Replace("\r\n", ""));
-							interList.Add(_iface);
-						}
-					}
-				}
-			}
-			if (File.Exists("interface.log"))
-				File.Delete("interface.log");
-			return interList;
+			breakRunLoop = true;
 		}
+        private string runAndReturn(string process, string directory = "", string command = "")
+        {
+            var _info = "";
+            try
+            {
+                var proc = new Process
+                {
+                    StartInfo = new ProcessStartInfo
+                    {
+                        FileName = process,
+                        Arguments = command,
+                        WorkingDirectory = directory,
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        CreateNoWindow = true
+                    }
+                };
+                proc.Start();
+                while (!proc.StandardOutput.EndOfStream)
+                {
+                    _info = proc.StandardOutput.ReadToEnd();
+                }
+                return _info;
+            }
+            catch (Exception ex)
+            {
+                ensureFile("error.log", "WifiGeddan Error Log\n\n");
+                File.AppendAllText("error.log", ex.Message);
+                return ex.Message;
+            }
+        }
 		#endregion DataHandler
 		#region AsyncTask_Binding
-		public Task<string> MyAsyncText => GetTextAsync();
-		private static string ScanData = "";
-		private async Task<string> GetTextAsync()
-		{
-			await Task.Delay(100);
-			return ScanData;
-		}
+		//public Task<string> MyAsyncText => GetTextAsync();
+		//private static string ScanData = "";
+		//private async Task<string> GetTextAsync()
+		//{
+		//	await Task.Delay(100);
+		//	return ScanData;
+		//}
 		#endregion
 	}
 }
