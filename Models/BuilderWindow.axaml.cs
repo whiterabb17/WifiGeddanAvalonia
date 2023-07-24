@@ -2,7 +2,7 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 
-namespace WifiAvalonia.Views
+namespace WifiGeddan.Views
 {
     public partial class BuilderWindow : Window
     {
@@ -29,29 +29,29 @@ namespace WifiAvalonia.Views
         }
         private void CheckServer(object? sender, RoutedEventArgs e)
         {
-            if (ServerChoice.IsChecked == true)
-            { 
-                //LinServer = true;
-                ServerChoice.Content = "Lin";
-            }
-            else
-            { 
-                //LinServer = false;
-                ServerChoice.Content = "Win";
-            }
+            //if (ServerChoice.IsChecked == true)
+            //{ 
+            //    //LinServer = true;
+            //    ServerChoice.Content = "Lin";
+            //}
+            //else
+            //{ 
+            //    //LinServer = false;
+            //    ServerChoice.Content = "Win";
+            //}
         }
         private void CheckClient(object? sender, RoutedEventArgs e)
         {
-            if (ClientChoice.IsChecked == true)
-            {
-                //LinClient = true;
-                ClientChoice.Content = "Lin";
-            }
-            else
-            {
-                //LinClient = false;
-                ClientChoice.Content = "Win";
-            }
+            //if (ClientChoice.IsChecked == true)
+            //{
+            //    //LinClient = true;
+            //    ClientChoice.Content = "Lin";
+            //}
+            //else
+            //{
+            //    //LinClient = false;
+            //    ClientChoice.Content = "Win";
+            //}
         }
         private void EncCheck(object? sender, RoutedEventArgs e)
         {
@@ -62,16 +62,16 @@ namespace WifiAvalonia.Views
         }
         private void CheckAuth(object? sender, RoutedEventArgs e)
         {
-            if (AuthCheck.IsChecked == true)
-            { 
-               // UsingAuth = true;
-                PName.IsEnabled = true;
-            }
-            else
-            { 
-              //  UsingAuth = false;
-                PName.IsEnabled = false;
-            }
+            //if (AuthCheck.IsChecked == true)
+            //{ 
+            //   // UsingAuth = true;
+            //    PName.IsEnabled = true;
+            //}
+            //else
+            //{ 
+            //  //  UsingAuth = false;
+            //    PName.IsEnabled = false;
+            //}
         }
         private void Build(object? sender, RoutedEventArgs e)
         {

@@ -7,10 +7,10 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using WifiAvalonia.Models;
-using WifiAvalonia.ViewModels;
+using WifiGeddan.Models;
+using WifiGeddan.ViewModels;
 
-namespace WifiAvalonia.Views
+namespace WifiGeddan.Views
 {
     public partial class MainWindow : Window
     {
@@ -25,13 +25,13 @@ namespace WifiAvalonia.Views
             //clientGrid.SelectionChanged += GridSelection;
             var ifaceCbx = this.FindControl<ComboBox>("Interfaces");
             ifaceCbx.SelectionChanged += GridSelection;
-            var Sender = this.FindControl<Button>("SendBtn");
-            Sender.Click += SendAdmMsg;
+            //var Sender = this.FindControl<Button>("SendBtn");
+            //Sender.Click += StartAiroScan;
         }
-        private void SendAdmMsg(object? sender, RoutedEventArgs e)
+        internal void StartAiroScan(string mode)
         {
-            var Sender = this.FindControl<Button>("SendBtn");
-            Sender.Content = "Stop Airodump";
+            var Sender = this.FindControl<Button>("AiroButton");
+            Sender.Content = mode + " Airodump";
         }
         internal void setIFaceMode(string mode)
         {

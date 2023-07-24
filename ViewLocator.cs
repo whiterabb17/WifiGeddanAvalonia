@@ -1,10 +1,10 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
-using WifiAvalonia.ViewModels;
+using WifiGeddan.ViewModels;
 using System;
 using System.Collections.Generic;
 
-namespace WifiAvalonia
+namespace WifiGeddan
 {
     public class Interfaces
     {

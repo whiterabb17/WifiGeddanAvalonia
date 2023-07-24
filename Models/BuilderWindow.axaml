@@ -1,14 +1,14 @@
 <Window
-    x:Class="WifiAvalonia.Views.BuilderWindow"
+    x:Class="WifiGeddan.Views.BuilderWindow"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:vm="clr-namespace:WifiAvalonia.ViewModels"
+    xmlns:vm="clr-namespace:WifiGeddan.ViewModels"
     d:DesignHeight="270"
     d:DesignWidth="500"
     Background="WhiteSmoke"
-    Icon="avares://WifiAvalonia/Assets/winux.ico"
+    Icon="avares://WifiGeddan/Assets/winux.ico"
     mc:Ignorable="d">
     <!--
         Title="WINUX [CMF] SYSTEM"
@@ -50,7 +50,7 @@
             Grid.RowSpan="3"
             Grid.Column="0"
             Grid.ColumnSpan="2"
-            Source="avares://WifiAvalonia/Assets/winux.png"
+            Source="avares://WifiGeddan/Assets/winux.png"
             StretchDirection="UpOnly" />
 
         <!--<StackPanel Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="6">		</StackPanel>-->

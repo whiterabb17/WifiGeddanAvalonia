@@ -21,6 +21,10 @@
   </PropertyGroup>
   <ItemGroup>
 	<AvaloniaResource Include="Assets\**" />
+	<AvaloniaXaml Remove="MiscScripts\**" />
+	<Compile Remove="MiscScripts\**" />
+	<EmbeddedResource Remove="MiscScripts\**" />
+	<None Remove="MiscScripts\**" />
 	<None Remove=".gitignore" />
   </ItemGroup>
   <ItemGroup>
@@ -43,6 +47,28 @@
 	<PackageReference Include="CsvHelper" Version="30.0.1" />
 	<PackageReference Include="dnlib" Version="3.5.0" />
 	<PackageReference Include="IronXL.Excel" Version="2023.7.4" />
+	<PackageReference Include="Material.Avalonia" Version="2.5.1" />
+	<PackageReference Include="Notification.Avalonia" Version="1.1.0" />
 	<PackageReference Include="XamlNameReferenceGenerator" Version="1.3.4" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="binutils\bully.nix">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="binutils\pixiewps.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="binutils\pixiewps.nix">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="binutils\pixiewrapper.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="binutils\pixiewrapper.nix">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="binutils\reaver.nix">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

@@ -1,73 +1,101 @@
 <Window
-    x:Class="WifiAvalonia.Views.MessageBox"
-    xmlns="https://github.com/avaloniaui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:vm="clr-namespace:WifiAvalonia.ViewModels"
-    d:DesignHeight="120"
-    d:DesignWidth="300"
-    CanResize="False"
-    mc:Ignorable="d">
+	x:Class="WifiGeddan.Views.MessageBox"
+	xmlns="https://github.com/avaloniaui"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:vm="clr-namespace:WifiGeddan.ViewModels"
+	d:DesignHeight="120"
+	d:DesignWidth="300"
+	CanResize="False"
+	mc:Ignorable="d">
 
-    <Design.DataContext>
-        <vm:BuilderWindowViewModel />
-    </Design.DataContext>
-    <Window.Styles>
-        <Style Selector="TextBlock.h1">
-            <Setter Property="FontSize" Value="20" />
-            <Setter Property="FontWeight" Value="Bold" />
-            <Setter Property="FontStyle" Value="Oblique" />
-            <Setter Property="Background" Value="Black" />
-            <Setter Property="Foreground" Value="Red" />
-            <Setter Property="Width" Value="400" />
-        </Style>
-    </Window.Styles>
-    <Grid
-        Margin="1"
-        ColumnDefinitions="40,50,60,60"
-        RowDefinitions="25,30,30,30">
-        <Image
-            Grid.Row="0"
-            Grid.RowSpan="3"
-            Grid.Column="0"
-            Grid.ColumnSpan="1"
-            HorizontalAlignment="Left"
-            Source="avares://WifiAvalonia/Assets/winux.png" />
-        <TextBlock
-            Grid.Row="0"
-            Grid.Column="0"
-            Grid.ColumnSpan="4"
-            Classes="h1" />
-        <TextBlock
-            Grid.Row="0"
-            Grid.Column="2"
-            Grid.ColumnSpan="4"
-            Classes="h1"
-            TextAlignment="Center">
-            WINUX BUILD RESULTS
-        </TextBlock>
-        <StackPanel
-            Grid.Row="2"
-            Grid.Column="2"
-            Grid.ColumnSpan="4"
-            HorizontalAlignment="Center">
-            <TextBox
-                x:Name="Text"
-                Width="200"
-                HorizontalAlignment="Center"
-                Text="Placeholder" />
-            <StackPanel
-                Name="Buttons"
-                HorizontalAlignment="Center"
-                Orientation="Horizontal">
-                <StackPanel.Styles>
-                    <Style Selector="Button">
-                        <Setter Property="Margin" Value="5" />
-                    </Style>
-                </StackPanel.Styles>
+	<Design.DataContext>
+		<vm:BuilderWindowViewModel />
+	</Design.DataContext>
+	<Window.Styles>
+		<Style Selector="TextBlock.h1">
+			<Setter Property="FontSize" Value="20" />
+			<Setter Property="FontWeight" Value="Bold" />
+			<Setter Property="FontStyle" Value="Oblique" />
+			<Setter Property="Background" Value="Black" />
+			<Setter Property="Foreground" Value="Red" />
+			<Setter Property="Width" Value="400" />
+		</Style>
+	</Window.Styles>
+	<Grid
+		Margin="1"
+		ColumnDefinitions="40,50,60,60"
+		RowDefinitions="25,30,30,30">
+		<Image
+			Grid.Row="0"
+			Grid.RowSpan="3"
+			Grid.Column="0"
+			Grid.ColumnSpan="1"
+			HorizontalAlignment="Left"
+			Source="avares://WifiGeddan/Assets/winux.png" />
+		<TextBlock
+			Grid.Row="0"
+			Grid.Column="0"
+			Grid.ColumnSpan="4"
+			Classes="h1" />
+		<TextBlock
+			Grid.Row="0"
+			x:Name="Heading"
+			Grid.Column="2"
+			Grid.ColumnSpan="4"
+			Classes="h1"
+			TextAlignment="Center"
+			Text="Header Text" />
 
-            </StackPanel>
-        </StackPanel>
-    </Grid>
+		<TextBox
+			Grid.Row="2"
+			Grid.Column="2"
+			Grid.ColumnSpan="4"
+			x:Name="Text"
+			Margin="0,-35,0,0"
+			Height="50"
+			Width="220"
+			TextAlignment="Center"
+			HorizontalAlignment="Center"
+			Text="Message Text" />
+		<StackPanel
+			Grid.Row="3"
+			Grid.Column="2"
+			Grid.ColumnSpan="4"
+			HorizontalAlignment="Center">
+			<ProgressBar
+				x:Name="InstallBar"
+				Grid.Row="3"
+				Margin="0,-5,0,0"
+				Grid.Column="2"
+				Grid.ColumnSpan="4"
+				Height="30"
+				IsVisible="True"
+			/>
+			<!--	<Button -->
+			<!--	x:Name="MsgBoxButton" -->
+			<!--	Grid.Row="3" -->
+			<!--	Grid.Column="2" -->
+			<!--	Width="120" -->
+			<!--	Height="32" -->
+			<!--	Margin="0,6,0,0" -->
+			<!--	HorizontalContentAlignment="Center" -->
+			<!--	VerticalContentAlignment="Center" -->
+			<!--	IsEnabled="True" -->
+			<!--	Command="{Binding InstallNpCapButton}" -->
+			<!--	Content="Install" /> -->
+			<StackPanel
+				x:Name="Buttons"
+				Margin="0,-10,0,0"
+				HorizontalAlignment="Center"
+				Orientation="Horizontal">
+				<StackPanel.Styles>
+					<Style Selector="Button">
+						<Setter Property="Margin" Value="5" />
+					</Style>
+				</StackPanel.Styles>
+			</StackPanel>
+		</StackPanel>
+	</Grid>
 </Window>

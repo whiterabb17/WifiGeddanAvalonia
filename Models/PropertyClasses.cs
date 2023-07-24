@@ -1,8 +1,8 @@
-﻿using WifiAvalonia.Views;
+﻿using WifiGeddan.Views;
 using System.Collections.Generic;
 using CsvHelper.Configuration.Attributes;
 
-namespace WifiAvalonia.Models
+namespace WifiGeddan.Models
 {
     public class ViewHolder
     {

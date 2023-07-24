@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace WifiAvalonia.ViewModels
+namespace WifiGeddan.ViewModels
 {
     public class ViewModelBase : ReactiveObject
     {

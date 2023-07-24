@@ -1,8 +1,8 @@
 <Application
-	x:Class="WifiAvalonia.App"
+	x:Class="WifiGeddan.App"
 	xmlns="https://github.com/avaloniaui"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-	xmlns:local="using:WifiAvalonia">
+	xmlns:local="using:WifiGeddan">
 	<Application.DataTemplates>
 		<local:ViewLocator />
 	</Application.DataTemplates>

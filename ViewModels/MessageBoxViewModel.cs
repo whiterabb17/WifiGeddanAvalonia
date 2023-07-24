@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WifiAvalonia.ViewModels
+namespace WifiGeddan.ViewModels
 {
     internal class MessageBoxViewModel : ViewModelBase
     {

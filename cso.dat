@@ -1,0 +1,13 @@
+V1
+2:OnFrameworkInitializationCompleted,v
+2:desktop,p
+2:materialTheme,P
+2:primary,pM
+2:primaryColor,L
+2:secondary,D
+2:secondaryColor,C
+2:theme,W
+2:themeBootstrap,v3
+2:ButtonBaseErrorOnClick,S
+2:button,vG
+2:.ctor,K

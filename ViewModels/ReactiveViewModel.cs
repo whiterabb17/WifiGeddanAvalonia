@@ -1,4 +1,4 @@
-﻿using WifiAvalonia.Models;
+﻿using WifiGeddan.Models;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-namespace WifiAvalonia.ViewModels
+namespace WifiGeddan.ViewModels
 {
     public class ReactiveViewModel : ReactiveObject
     {

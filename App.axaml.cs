@@ -1,10 +1,15 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Controls.Primitives;
 using Avalonia.Markup.Xaml;
-using WifiAvalonia.ViewModels;
-using WifiAvalonia.Views;
+using Material.Colors;
+using Material.Styles.Themes;
+using WifiGeddan.ViewModels;
+using WifiGeddan.Views;
+using Material.Styles.Themes;
+using Material.Styles.Themes.Base;
 
-namespace WifiAvalonia
+namespace WifiGeddan
 {
     public partial class App : Application
     {
@@ -22,8 +27,16 @@ namespace WifiAvalonia
                     DataContext = new MainWindowViewModel(),
                 };
             }
-
             base.OnFrameworkInitializationCompleted();
+        //    var primary = PrimaryColor.DeepPurple;
+        //    var primaryColor = SwatchHelper.Lookup[(MaterialColor)primary];
+
+        //    var secondary = SecondaryColor.Orange;
+        //    var secondaryColor = SwatchHelper.Lookup[(MaterialColor)secondary];
+
+        //    var theme = Theme.Create(Theme.Dark, primaryColor, secondaryColor);
+        //    var themeBootstrap = this.LocateMaterialTheme<MaterialThemeBase>();
+        //    themeBootstrap.CurrentTheme = theme;
         }
     }
 }
