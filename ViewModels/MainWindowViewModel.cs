@@ -29,88 +29,16 @@ using System.Formats.Asn1;
 using System.Globalization;
 using CsvHelper;
 using CsvHelper.Configuration;
-using dnlib.DotNet.MD;
 using SixLabors.ImageSharp;
 using Avalonia.Media;
 using Avalonia;
 using Avalonia.Notification;
 using Avalonia.Layout;
-using dnlib.DotNet.Emit;
 
 namespace WifiGeddan.ViewModels
 {
 	public class MainWindowViewModel : ViewModelBase
 	{
-		#region MessageBoxes
-		public INotificationMessageManager Manager { get; } = new NotificationMessageManager();
-
-		private void ButtonBaseErrorOnClick()
-		{
-			this.Manager
-				.CreateMessage()
-				.Accent("#F15B19")
-				.Background("#F15B19")
-				.HasHeader("Dependancy Installation")
-				.HasMessage("NpCap will now be installed.\nWould you like to continue?")
-				.WithOverlay(new ProgressBar
-				{
-					VerticalAlignment = VerticalAlignment.Bottom,
-					HorizontalAlignment = HorizontalAlignment.Stretch,
-					Height = 3,
-					BorderThickness = new Thickness(0),
-					Foreground = new SolidColorBrush(Avalonia.Media.Color.FromArgb(128, 255, 255, 255)),
-					Background = Brushes.Transparent,
-					IsIndeterminate = true,
-					IsHitTestVisible = false
-				})
-                .WithButton("Continue", button => {  })
-                .Dismiss().WithButton("Ignore", button => { })
-                .Queue();
-		}
-
-		private void ButtonBaseWarningOnClick()
-		{
-			this.Manager
-				.CreateMessage()
-				.Accent("#E0A030")
-				.Background("#333")
-				.HasBadge("Warn")
-				.HasHeader("Depandancy Warning")
-				.HasMessage("NpCap will be installed now.")
-				.WithButton("Try again", async button => { })
-				.Queue();
-		}
-
-		private void ButtonBaseInfoOnClick()
-		{
-			this.Manager
-				.CreateMessage()
-				.Accent("#1751C3")
-				.Background("#333")
-				.HasBadge("Info")
-				.HasMessage("Update will be installed on next application restart.")
-				.Dismiss().WithButton("Update now", button => { })
-				.Dismiss().WithButton("Release notes", button => { })
-				.Dismiss().WithButton("Later", button => { })
-				.Queue();
-		}
-
-		private void ButtonBaseInfoDelayOnClick()
-		{
-			this.Manager
-				.CreateMessage()
-				.Accent("#1751C3")
-				.Animates(true)
-				.Background("#333")
-				.HasBadge("Info")
-				.HasMessage(
-					"Update will be installed on next application restart. This message will be dismissed after 5 seconds.")
-				.Dismiss().WithButton("Update now", button => { })
-				.Dismiss().WithButton("Release notes", button => { })
-				.Dismiss().WithDelay(TimeSpan.FromSeconds(5))
-				.Queue();
-		}
-		#endregion MessageBoxes
 		public ReactiveViewModel ReactiveView { get; } = new ReactiveViewModel();
 		public MainWindowViewModel()
 		{
@@ -126,19 +54,19 @@ namespace WifiGeddan.ViewModels
 			DisableInterface = ReactiveCommand.Create(DisableAdapter);
 			GetIFaceMode = ReactiveCommand.Create(GetAdapterMode);
 			StartAiroDumpScan = ReactiveCommand.Create(AiroDumpThread);
-            if (WorkingOS == "Windows")
+			if (WorkingOS == "Windows")
 				InterfaceList = new ObservableCollection<NetInterfaces>(GenerateInterfaceInfoTable());
 			else
 				InterfaceList = new ObservableCollection<NetInterfaces>(GenerateInterfaceCollection());
-            depCheck();
+			depCheck();
 		}
 
-        private async void depCheck()
-        {
-            await Task.Delay(500);
-            if (ViewHolder._mainWindow != null)
-                checkForDeps(ViewHolder._mainWindow);
-        }
+		private async void depCheck()
+		{
+			await Task.Delay(500);
+			if (ViewHolder._mainWindow != null)
+				checkForDeps(ViewHolder._mainWindow);
+		}
 
 		#region ReactiveCommands
 		public ReactiveCommand<Unit, Unit> EnableMonMode { get; }
@@ -432,6 +360,36 @@ namespace WifiGeddan.ViewModels
 				File.Delete("interface.log");
 			return interList;
 		}
+		private List<AdapterInfo> GetInterfaceDetails(string name)
+		{
+			var infoList = new List<AdapterInfo>();
+			foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
+			{
+				if (ni.Name == name)
+				{ 
+					var info = new AdapterInfo
+					{
+						AdapterName = ni.Name,
+						AdapterId = ni.Id,
+						AdapterType = ni.NetworkInterfaceType.ToString(),
+						OperationalStatus = ni.OperationalStatus.ToString(),
+						Description = ni.Description
+					};
+					var props = ni.GetIPProperties();
+					info.GatewayAddress = props.GatewayAddresses.ToString();
+					info.MulticastAddress = props.MulticastAddresses.ToString();
+					info.DnsAddress = props.DnsAddresses.ToString();
+					info.DnsEnabled = props.IsDnsEnabled;
+					var stats = ni.GetIPStatistics();
+					info.BytesRecieved = stats.BytesReceived;
+					info.BytesSent = stats.BytesSent;
+					string mode = GetInterfaceMode(name);
+					info.AdapterMode = mode;
+					infoList.Add(info);
+				}
+			}
+			return infoList;
+		}
 		private List<NetInterfaces> GetNewInterfaceCollection()
 		{
 			var interfaceList = new List<NetInterfaces>();
@@ -447,7 +405,7 @@ namespace WifiGeddan.ViewModels
 					Name = ni.Name,
 					Mode = mon
 				};
-			interfaceList.Add(iface);
+				interfaceList.Add(iface);
 			}
 			return interfaceList;
 		}
@@ -496,8 +454,6 @@ namespace WifiGeddan.ViewModels
 			Console.WriteLine($"\n\n\n{WorkingOS}\n\n\n");
 			//ViewHolder._mainWindow.ClientCount.Text = "Clients: 0";
 		}
-
-
 		private async void InstallNpcap(Window window)
 		{
 			await MessageBox.Show(window, "Without it WifiGeddan will fail\nInstall it now?", "Npcap Driver not Found", MessageBox.MessageBoxButtons.Ok);
@@ -508,14 +464,13 @@ namespace WifiGeddan.ViewModels
 			//File.Delete("npcapInstaller.exe");
 			//await Dispatcher.UIThread.InvokeAsync(() => ShowIFaceMode(_mode), DispatcherPriority.Background);
 		}
-
 		private void checkForDeps(Window window)
 		{
 			if (WorkingOS == "Windows")
 			{
-                if (!File.Exists("C:\\Windows\\System32\\Npcap\\wlanhelper.exe"))
-                    InstallNpcap(ViewHolder._mainWindow); 
-                        //ShowError(window);
+				if (!File.Exists("C:\\Windows\\System32\\Npcap\\wlanhelper.exe"))
+					InstallNpcap(ViewHolder._mainWindow); 
+						//ShowError(window);
 			}
 			else
 			{
@@ -525,7 +480,6 @@ namespace WifiGeddan.ViewModels
 				//		await MessageBox.Show(window, "Must be run as root", "Linux Permission Error", MessageBox.MessageBoxButtons.Ok);
 			}
 		}
-
 		private void EnableMonitorMode()
 		{
 			var mode = "managed";
@@ -603,10 +557,10 @@ namespace WifiGeddan.ViewModels
 		{
 			if (!airoDumpRunning)
 			{
-                airoDumpRunning = true;
-                if (ViewHolder._mainWindow != null)
-                    await Dispatcher.UIThread.InvokeAsync(() => ViewHolder._mainWindow.StartAiroScan("Stop"), DispatcherPriority.Background);
-                if (WorkingOS == "Linux")
+				airoDumpRunning = true;
+				if (ViewHolder._mainWindow != null)
+					await Dispatcher.UIThread.InvokeAsync(() => ViewHolder._mainWindow.StartAiroScan("Stop"), DispatcherPriority.Background);
+				if (WorkingOS == "Linux")
 				{
 					//ensureFile("airodump.buf", "", true);    "top", "", "")); 
 					AiroThread = new Thread(() => runAndRead("airodump-ng", "", $"--enc wpa {selectedInterface} -w airscan --output-format csv --write-interval 10"));
@@ -630,23 +584,23 @@ namespace WifiGeddan.ViewModels
 				}
 			}
 			else if (airoDumpRunning)
-            {
-                if (ViewHolder._mainWindow != null)
-                    await Dispatcher.UIThread.InvokeAsync(() => ViewHolder._mainWindow.StartAiroScan("Start"), DispatcherPriority.Background);
-                airoDumpRunning = false;
-                try
-                {
+			{
+				if (ViewHolder._mainWindow != null)
+					await Dispatcher.UIThread.InvokeAsync(() => ViewHolder._mainWindow.StartAiroScan("Start"), DispatcherPriority.Background);
+				airoDumpRunning = false;
+				try
+				{
 
-                    foreach (Process ps in Process.GetProcesses())
-                    {
-                        if (ps.ProcessName.Contains("airodump"))
-                            ps.Kill();
-                        mustBreakLoop = true;
-                        breakRunLoop = true;
-                    }
-                }
-                catch { }
-                fillAiroTables();
+					foreach (Process ps in Process.GetProcesses())
+					{
+						if (ps.ProcessName.Contains("airodump"))
+							ps.Kill();
+						mustBreakLoop = true;
+						breakRunLoop = true;
+					}
+				}
+				catch { }
+				fillAiroTables();
 			}
 		}
 		private async void fillAiroTables()
@@ -775,9 +729,9 @@ namespace WifiGeddan.ViewModels
 				mode = runAndReturn("C:\\Windows\\System32\\Npcap\\wlanhelper.exe", "C:\\Windows\\System32\\Npcap", $"\"{selectedInterface}\" mode");
 				Console.WriteLine(mode);
 				SetModeLabel(mode.ToString().Replace("\r\n", ""));
-                if (ViewHolder._mainWindow != null)
-                    await Dispatcher.UIThread.InvokeAsync(() => ViewHolder._mainWindow.setIFaceMode(mode.ToString().Replace("\r\n", "")), DispatcherPriority.Background);
-                var _ilist = interfaceList();
+				if (ViewHolder._mainWindow != null)
+					await Dispatcher.UIThread.InvokeAsync(() => ViewHolder._mainWindow.setIFaceMode(mode.ToString().Replace("\r\n", "")), DispatcherPriority.Background);
+				var _ilist = interfaceList();
 				foreach (var _i in _ilist)
 				{
 					if (_i.Name == selectedInterface)
@@ -853,8 +807,22 @@ namespace WifiGeddan.ViewModels
 			{
 				return "";
 			}
-		}
-		public async void SetModeLabel(string imode)
+        }
+        private string GetInterfaceMode(string name)
+        {
+            if (!string.IsNullOrEmpty(selectedInterface) && WorkingOS == "Windows")
+            {
+                var mode = runAndReturn("C:\\Windows\\System32\\Npcap\\wlanhelper.exe", "C:\\Windows\\System32\\Npcap", $"\"{name}\" mode");
+                Console.WriteLine(mode);
+                SetModeLabel(mode.ToString().Replace("\r\n", ""));
+                return mode;
+            }
+            else
+            {
+                return "";
+            }
+        }
+        public async void SetModeLabel(string imode)
 		{
 			await Dispatcher.UIThread.InvokeAsync(() => IFaceMode = imode, DispatcherPriority.Background);
 			if (ViewHolder._mainWindow != null)
