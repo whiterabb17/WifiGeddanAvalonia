@@ -366,10 +366,10 @@ namespace WifiGeddan.ViewModels
 			foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
 			{
 				if (ni.Name == name)
-                {
-                    var props = ni.GetIPProperties();
-                    var stats = ni.GetIPStatistics();
-                    var info = new AdapterInfo
+				{
+					var props = ni.GetIPProperties();
+					var stats = ni.GetIPStatistics();
+					var info = new AdapterInfo
 					{
 						AdapterName = ni.Name,
 						AdapterId = ni.Id,
@@ -806,22 +806,22 @@ namespace WifiGeddan.ViewModels
 			{
 				return "";
 			}
-        }
-        private string GetInterfaceMode(string name)
-        {
-            if (!string.IsNullOrEmpty(selectedInterface) && WorkingOS == "Windows")
-            {
-                var mode = runAndReturn("C:\\Windows\\System32\\Npcap\\wlanhelper.exe", "C:\\Windows\\System32\\Npcap", $"\"{name}\" mode");
-                Console.WriteLine(mode);
-                SetModeLabel(mode.ToString().Replace("\r\n", ""));
-                return mode;
-            }
-            else
-            {
-                return "";
-            }
-        }
-        public async void SetModeLabel(string imode)
+		}
+		private string GetInterfaceMode(string name)
+		{
+			if (!string.IsNullOrEmpty(selectedInterface) && WorkingOS == "Windows")
+			{
+				var mode = runAndReturn("C:\\Windows\\System32\\Npcap\\wlanhelper.exe", "C:\\Windows\\System32\\Npcap", $"\"{name}\" mode");
+				Console.WriteLine(mode);
+				SetModeLabel(mode.ToString().Replace("\r\n", ""));
+				return mode;
+			}
+			else
+			{
+				return "";
+			}
+		}
+		public async void SetModeLabel(string imode)
 		{
 			await Dispatcher.UIThread.InvokeAsync(() => IFaceMode = imode, DispatcherPriority.Background);
 			if (ViewHolder._mainWindow != null)
