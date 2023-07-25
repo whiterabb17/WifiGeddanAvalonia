@@ -366,25 +366,24 @@ namespace WifiGeddan.ViewModels
 			foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
 			{
 				if (ni.Name == name)
-				{ 
-					var info = new AdapterInfo
+                {
+                    var props = ni.GetIPProperties();
+                    var stats = ni.GetIPStatistics();
+                    var info = new AdapterInfo
 					{
 						AdapterName = ni.Name,
 						AdapterId = ni.Id,
 						AdapterType = ni.NetworkInterfaceType.ToString(),
 						OperationalStatus = ni.OperationalStatus.ToString(),
-						Description = ni.Description
+						Description = ni.Description,
+						GatewayAddress = props.GatewayAddresses.ToString(),
+						MulticastAddress = props.MulticastAddresses.ToString(),
+						DnsAddress = props.DnsAddresses.ToString(),
+						DnsEnabled = props.IsDnsEnabled,
+						BytesRecieved = stats.BytesReceived,
+						BytesSent = stats.BytesSent,
+						AdapterMode = GetInterfaceMode(name)
 					};
-					var props = ni.GetIPProperties();
-					info.GatewayAddress = props.GatewayAddresses.ToString();
-					info.MulticastAddress = props.MulticastAddresses.ToString();
-					info.DnsAddress = props.DnsAddresses.ToString();
-					info.DnsEnabled = props.IsDnsEnabled;
-					var stats = ni.GetIPStatistics();
-					info.BytesRecieved = stats.BytesReceived;
-					info.BytesSent = stats.BytesSent;
-					string mode = GetInterfaceMode(name);
-					info.AdapterMode = mode;
 					infoList.Add(info);
 				}
 			}
