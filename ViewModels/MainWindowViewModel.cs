@@ -185,7 +185,7 @@ namespace WifiGeddan.ViewModels
 			var iniLog = new Logs
 			{
 				LogTime = DateTime.Now.ToLongTimeString(),
-				LogData = "ExampleLog Data"
+				LogData = "Detected System: " + WorkingOS
 			};
 			logList.Add(iniLog);
 			return logList;
