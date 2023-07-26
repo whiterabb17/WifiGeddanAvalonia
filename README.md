@@ -17,3 +17,8 @@ Cross-Platform AirCrack GUI made on NET6 using the Avalonia Libraries.
 - If you have the BSSID, Pixie Dust can be done on Windows/Linux
 - (just can't get airodump to work correctly in windows yet using CSharp)
   - Suppose I will need to write a wrapper? 
+
+<span>
+	<img align="center" src="https://raw.githubusercontent.com/whiterabb17/WifiGeddanAvalonia/master/Assets/windows.png">
+<img align="center" src="https://raw.githubusercontent.com/whiterabb17/WifiGeddanAvalonia/master/Assets/linux.png">
+</span>
