@@ -1,6 +1,5 @@
-﻿using WifiGeddan.Views;
-using System.Collections.Generic;
-using CsvHelper.Configuration.Attributes;
+﻿using CsvHelper.Configuration.Attributes;
+using System;
 
 namespace WifiGeddan.Models
 {
@@ -8,7 +7,15 @@ namespace WifiGeddan.Models
     {
         public static MainWindow? _mainWindow;
     }
-   
+
+    public class UsbInfo
+    { 
+        public string? Name { get; set; }
+        public string? InstanceId { get; set; }
+        public string? SerialNumber { get; set; }
+        public string? State { get; set; }
+        public string? Guid { get; set; }
+    }
     public class AiroDumpRouters
     {
         [Index(13)]

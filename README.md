@@ -2,6 +2,8 @@
 
 Cross-Platform AirCrack GUI made on NET6 using the Avalonia Libraries.
 
+	Updated to Avalonia 11 for a Cleaner/Sleaker UI
+
 # Requirements
 
 - NpCap Driver on Windows (if not found/can be installed automatically)
@@ -19,5 +21,5 @@ Cross-Platform AirCrack GUI made on NET6 using the Avalonia Libraries.
   - Suppose I will need to write a wrapper? 
 
 <span>
-	<img align="center" src="https://raw.githubusercontent.com/whiterabb17/WifiGeddanAvalonia/master/Assets/screenshots.png">
+	<img align="center" src="https://raw.githubusercontent.com/whiterabb17/WifiGeddanAvalonia/master/WifiGeddan/Assets/screenshots.png">
 </span>

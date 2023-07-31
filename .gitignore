@@ -15,7 +15,7 @@
 
 # Mono auto generated files
 mono_crash.*
-MiscScripts/*
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
@@ -31,7 +31,9 @@ bld/
 [Oo]bj/
 [Ll]og/
 [Ll]ogs/
-
+obj/*
+bin/*
+binutils/*
 # Visual Studio 2015/2017 cache/options directory
 .vs/
 # Uncomment if you have tasks that create the project's static files in wwwroot
@@ -161,7 +163,7 @@ nCrunchTemp_*
 # MightyMoose
 *.mm.*
 AutoTest.Net/
-cso.dat
+
 # Web workbench (sass)
 .sass-cache/
 

@@ -2,14 +2,12 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
-using Avalonia.Notification;
 using System.Threading.Tasks;
 using Avalonia.Layout;
 using Avalonia.Interactivity;
 using System.Diagnostics;
 using System.Net.Http;
 using System.IO;
-using WifiGeddan.ViewModels;
 using System.Threading;
 
 namespace WifiGeddan.Views
@@ -31,7 +29,7 @@ namespace WifiGeddan.Views
             Yes,
             No
         }
-        public INotificationMessageManager Manager { get; } = new NotificationMessageManager(); 
+       // public INotificationMessageManager Manager { get; } = new NotificationMessageManager(); 
         
         public string HeaderText = "Header Text";
         public string MessageText = "Message Text";
@@ -43,6 +41,7 @@ namespace WifiGeddan.Views
         {
             this.Width = 300;
             this.Height = 120;
+            InitializeComponent();
             AvaloniaXamlLoader.Load(this);
         }
         private static MessageBox me { get;set; }

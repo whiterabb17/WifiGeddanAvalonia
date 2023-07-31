@@ -1,15 +1,15 @@
 <Window
-	x:Class="WifiGeddan.Views.MainWindow"
+	x:Class="WifiGeddan.MainWindow"
 	xmlns="https://github.com/avaloniaui"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-	xmlns:vm="clr-namespace:WifiGeddan.ViewModels"
-	xmlns:styles="clr-namespace:Material.Styles;assembly=Material.Styles"
+	xmlns:vm="using:WifiGeddan.ViewModels"
+	x:DataType="vm:MainWindowViewModel"
 	d:DesignHeight="760"
 	d:DesignWidth="800"
 	Background="WhiteSmoke"
-	Icon="avares://WifiGeddan/Assets/winux.ico"
+	Icon="/Assets/winux.ico"
 	mc:Ignorable="d">
 	<!--
 		Title="WINUX [CMF] SYSTEM"
@@ -30,8 +30,9 @@
 
 	<Grid
 		Margin="4"
+		Background="Black"
 		ColumnDefinitions="80,70,80,100,80,210,50,120"
-		RowDefinitions="30,30,55,30,30,30,20,30,30,20,30,347,30,30">
+		RowDefinitions="30,30,40,30,30,30,15,30,30,30,30,347,30,30">
 		<TextBlock
 			Grid.Row="0"
 			Grid.Column="0"
@@ -60,7 +61,7 @@
 		-->
 		<Grid.ContextMenu>
 			<ContextMenu>
-				<MenuItem x:Name="BuilderCtxItem" Header="Builder" />
+				<MenuItem x:Name="LogCtxItem" Header="Clear Logs" Command="{Binding ClearLogList, DataType={x:Type vm:MainWindowViewModel}}" />
 				<MenuItem Header="--------------------" />
 				<MenuItem x:Name="LocalServerCtxItem" Header="Start Server" />
 				<MenuItem x:Name="ManageServerCtxItem" Header="Connect To Server" />
@@ -75,7 +76,7 @@
 			Grid.Column="0"
 			Grid.ColumnSpan="8"
 			Width="780"
-			Height="65"
+			Height="50"
 			Padding="0,0,10,0"
 			VerticalAlignment="Top"
 			AutoGenerateColumns="True"
@@ -83,7 +84,7 @@
 			ColumnWidth="1*"
 			Foreground="Black"
 			HorizontalGridLinesBrush="Black"
-			Items="{Binding InterfaceList}"
+			ItemsSource="{Binding InterfaceList, DataType={x:Type vm:MainWindowViewModel}}"
 			SelectionMode="Single" />
 
 		<DataGrid
@@ -94,12 +95,12 @@
 			Grid.ColumnSpan="8"
 			Width="780"
 			Height="152"
-			Padding="5,0,10,0"
+			Padding="5,0,50,0"
 			AutoGenerateColumns="True"
 			Background="Gray"
 			Foreground="Black"
 			HorizontalGridLinesBrush="Black"
-			Items="{Binding LogList}" />
+			ItemsSource="{Binding LogList, DataType={x:Type vm:MainWindowViewModel}}" />
 
 		<!-- Attack Result Data Grid
 		
@@ -107,6 +108,7 @@
 		<StackPanel
 			Grid.Row="8"
 			Grid.Column="0"
+			Background="Gray"
 			Grid.ColumnSpan="8">
 			<DataGrid
 				x:Name="RouterTable"
@@ -115,15 +117,15 @@
 				Grid.Column="0"
 				Grid.ColumnSpan="8"
 				Width="780"
-				Height="175"
-				Padding="5,0,10,0"
+				Height="200"
+				Padding="5,0,50,0"
 				AutoGenerateColumns="True"
 				Background="Gray"
 				Foreground="Black"
 				ScrollViewer.HorizontalScrollBarVisibility="Auto"
 				ScrollViewer.VerticalScrollBarVisibility="Auto"
 				HorizontalGridLinesBrush="Black"
-				Items="{Binding RouterTable}" />
+				ItemsSource="{Binding RouterTableList, DataType={x:Type vm:MainWindowViewModel}}" />
 			<DataGrid
 				x:Name="DeviceTable"
 				Grid.Row="4"
@@ -133,13 +135,13 @@
 				ScrollViewer.HorizontalScrollBarVisibility="Auto"
 				ScrollViewer.VerticalScrollBarVisibility="Auto"
 				Width="780"
-				Height="252"
-				Padding="5,0,10,0"
+				Height="235"
+				Padding="50,0,10,0"
 				AutoGenerateColumns="True"
 				Background="Gray"
 				Foreground="Black"
 				HorizontalGridLinesBrush="Black"
-				Items="{Binding DeviceTable}" />
+				ItemsSource="{Binding DeviceTableList, DataType={x:Type vm:MainWindowViewModel}}" />
 			<TextBox
 				x:Name="SelectedInterface"
 				Grid.Row="5"
@@ -151,29 +153,37 @@
 				IsVisible="False" />
 		</StackPanel>
 
-		<StackPanel Grid.Row="12" Grid.Column="0">
+		<StackPanel Grid.Row="12" Grid.Column="0"  Background="Gray">
 			<Button
 				Grid.Column="2"
 				Width="145"
+				Foreground="Black"
 				Height="30"
-				Command="{Binding EnableMonMode}"
+				Background="Gainsboro"
+				Command="{Binding EnableMonMode, DataType={x:Type vm:MainWindowViewModel}}"
 				Content="Enable Mon Mode" />
 			<Button
 				Width="145"
+				Background="Gainsboro"
+				Foreground="Black"
 				Height="30"
-				Command="{Binding DisableMonMode}"
+				Command="{Binding DisableMonMode, DataType={x:Type vm:MainWindowViewModel}}"
 				Content="Disable Mon Mode" />
 		</StackPanel>
-		<StackPanel Grid.Row="12" Grid.Column="2">
+		<StackPanel Grid.Row="12" Grid.Column="2" Background="Gray">
 			<Button
 				Width="145"
+				Background="Gainsboro"
+				Foreground="Black"
 				Height="30"
-				Command="{Binding EnableInterface}"
+				Command="{Binding EnableInterface, DataType={x:Type vm:MainWindowViewModel}}"
 				Content=" Enable Interface" />
 			<Button
 				Width="145"
+				Background="Gainsboro"
+				Foreground="Black"
 				Height="30"
-				Command="{Binding DisableInterface}"
+				Command="{Binding DisableInterface, DataType={x:Type vm:MainWindowViewModel}}"
 				Content=" Disable Interface" />
 		</StackPanel>
 		<Label
@@ -196,27 +206,33 @@
 		<ComboBox
 			x:Name="Interfaces"
 			Grid.Row="12"
+			Foreground="Black"
+			Background="Gainsboro"
 			Grid.Column="5"
 			Width="255"
 			Height="30"
-			Items="{Binding AvailableInterfaces}"
+			ItemsSource="{Binding AvailableInterfaces, DataType={x:Type vm:MainWindowViewModel}}"
 			SelectedIndex="0" />
 		<Button
 			x:Name="SendBtn"
 			Grid.Row="12"
 			Grid.Column="7"
-			Width="120"
+			Width="120"			
+			Foreground="Black"
+			Background="Gainsboro"
 			Height="30"
-			Command="{Binding GetAdapterMode}"
-			Content="        Select"
+			Command="{Binding GetIFaceMode, DataType={x:Type vm:MainWindowViewModel}}"
+			Content="Select"
 			HorizontalAlignment="Center" />
 		<Button
+			Foreground="Black"
 			Grid.Row="13"
+			Background="Gainsboro"
 			Grid.Column="7"
 			Width="120"
 			x:Name="AiroButton"
 			Height="30"
-			Command="{Binding StartAiroDumpScan}"
+			Command="{Binding StartAiroDumpScan, DataType={x:Type vm:MainWindowViewModel}}"
 			Content="Start Airodump"
 			HorizontalAlignment="Center" />
 	</Grid>

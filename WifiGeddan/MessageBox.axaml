@@ -33,7 +33,7 @@
 			Grid.Column="0"
 			Grid.ColumnSpan="1"
 			HorizontalAlignment="Left"
-			Source="avares://WifiGeddan/Assets/winux.png" />
+			Source="/Assets/winux.png"/>
 		<TextBlock
 			Grid.Row="0"
 			Grid.Column="0"
