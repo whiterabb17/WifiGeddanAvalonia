@@ -15,8 +15,6 @@
 
 # Mono auto generated files
 mono_crash.*
-*.nix
-*.exe
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
@@ -102,6 +100,8 @@ StyleCopReport.xml
 *.pidb
 *.svclog
 *.scc
+*.nix
+*.exe
 
 # Chutzpah Test files
 _Chutzpah*
@@ -180,7 +180,8 @@ DocProject/Help/*.hhk
 DocProject/Help/*.hhp
 DocProject/Help/Html2
 DocProject/Help/html
-
+WifiGeddan/binutils/*
+binutils/*
 # Click-Once directory
 publish/
 
