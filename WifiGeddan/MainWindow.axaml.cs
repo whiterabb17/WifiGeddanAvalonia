@@ -49,12 +49,16 @@ public partial class MainWindow : StyledWindow
         this.Width = 800;
         this.Height = 760;
         InitializeComponent();
+#if DEBUG
+        this.AttachDevTools();
+#endif
         AvaloniaXamlLoader.Load(this);
         ViewHolder._mainWindow = this;
         //var clientGrid = this.FindControl<DataGrid>("InterfaceGrid");
         //clientGrid.SelectionChanged += GridSelection;
         var ifaceCbx = this.FindControl<ComboBox>("Interfaces");
-        ifaceCbx.SelectionChanged += GridSelection;
+        if (ifaceCbx != null)
+            ifaceCbx.SelectionChanged += GridSelection;
         //SetWorkingSystem();
         //LogList = new ObservableCollection<Logs>(GenerateInitialLogTable());
         //RouterTable = new ObservableCollection<AiroDumpRouters>(GenerateAiroRouterTable());
@@ -77,50 +81,61 @@ public partial class MainWindow : StyledWindow
     }
     internal void InsertInterface(NetInterfaces iface, string mode)
     {
-        MainWindowViewModel._Main.InterfaceList.Clear();
-        MainWindowViewModel._Main.InterfaceList.Add(
-            new NetInterfaces()
-            {
-                Enabled = iface.Enabled,
-                State = iface.State,
-                Name = iface.Name,
-                Mode = mode.ToString().Replace("\r\n", "")
-            });
-    }
-    public async void InsertLog(Logs log)
-    {
-        MainWindowViewModel._Main.LogList.Add(
-                new Logs()
+        if (MainWindowViewModel._Main != null)
+        {
+            MainWindowViewModel._Main.InterfaceList.Clear();
+            MainWindowViewModel._Main.InterfaceList.Add(
+                new NetInterfaces()
                 {
-                    LogTime = log.LogTime,
-                    LogData = log.LogData
+                    Enabled = iface.Enabled,
+                    State = iface.State,
+                    Name = iface.Name,
+                    Mode = mode.ToString().Replace("\r\n", "")
                 });
+        }
     }
-    public async void ClearIfaces()
+    public static async void InsertLog(Logs log)
     {
-        MainWindowViewModel._Main.LogList.Clear();
+        if (MainWindowViewModel._Main != null)
+        { 
+            MainWindowViewModel._Main.LogList.Add(
+                    new Logs()
+                    {
+                        LogTime = log.LogTime,
+                        LogData = log.LogData
+                    });
+        }
+    }
+    public static async void ClearIfaces()
+    {
+        if (MainWindowViewModel._Main != null)
+            MainWindowViewModel._Main.LogList.Clear();
+
     }
     internal void StartAiroScan(string mode)
     {
         var Sender = this.FindControl<Button>("AiroButton");
-        Sender.Content = mode + " Airodump";
+        if (Sender != null)
+            Sender.Content = mode + " Airodump";
     }
     internal void setIFaceMode(string mode)
     {
         var selectedIface = this.FindControl<Label>("IfaceMode");
-        selectedIface.Content = mode;
+        if (selectedIface != null)
+            selectedIface.Content = mode;
     }
     private void GridSelection(object? sender, RoutedEventArgs e)
     {
         var ifaceCbx = this.FindControl<ComboBox>("Interfaces");
         var selectedIface = this.FindControl<TextBox>("SelectedInterface");
-        Console.WriteLine(ifaceCbx.SelectedItem);
-        if (ifaceCbx.SelectedItem != null)
+        Console.WriteLine(ifaceCbx?.SelectedItem);
+        if (ifaceCbx?.SelectedItem != null)
         {
-            var iface = ifaceCbx.SelectedItem.ToString();
+            var iface = ifaceCbx?.SelectedItem.ToString();
             if (iface != null)
                 MainWindowViewModel.selectedInterface = iface; //ClientGrid.CurrentColumn.ToString();
-            selectedIface.Text = iface;
+            if (selectedIface != null)
+                selectedIface.Text = iface;
         }
     }
 

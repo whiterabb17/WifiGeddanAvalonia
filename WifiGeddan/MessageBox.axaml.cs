@@ -44,7 +44,7 @@ namespace WifiGeddan.Views
             InitializeComponent();
             AvaloniaXamlLoader.Load(this);
         }
-        private static MessageBox me { get;set; }
+        private static MessageBox? me { get;set; }
 
         #region DialogInvoker
         public static Task<MessageBoxResult> Show(Window parent, string text, string title, MessageBoxButtons buttons)

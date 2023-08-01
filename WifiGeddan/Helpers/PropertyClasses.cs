@@ -8,14 +8,14 @@ namespace WifiGeddan.Models
         public static MainWindow? _mainWindow;
     }
 
-    public class UsbInfo
-    { 
-        public string? Name { get; set; }
-        public string? InstanceId { get; set; }
-        public string? SerialNumber { get; set; }
-        public string? State { get; set; }
-        public string? Guid { get; set; }
-    }
+    //public class UsbInfo
+    //{ 
+    //    public string? Name { get; set; }
+    //    public string? InstanceId { get; set; }
+    //    public string? SerialNumber { get; set; }
+    //    public string? State { get; set; }
+    //    public string? Guid { get; set; }
+    //}
     public class AiroDumpRouters
     {
         [Index(13)]

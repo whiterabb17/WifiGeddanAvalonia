@@ -22,18 +22,18 @@ namespace WifiGeddan.ViewModels
         {
             //InstallActionCmd = ReactiveCommand.Create(InstallNpCapButton);
         }
-        public ReactiveCommand<Unit, Unit> InstallActionCmd
-        {
-            get;
-        }
-        private async void InstallAction()
-        {
-            HttpClient http = new HttpClient();
-            var npcap = await http.GetByteArrayAsync("https://npcap.com/dist/npcap-1.75.exe");
-            File.WriteAllBytes("npcapInstaller.exe", npcap);
-            Process.Start("npcapInstaller.exe").WaitForExit();
-            File.Delete("npcapInstaller.exe");
-        }
+        //public ReactiveCommand<Unit, Unit> InstallActionCmd
+        //{
+        //    get;
+        //}
+        //private async void InstallAction()
+        //{
+        //    HttpClient http = new HttpClient();
+        //    var npcap = await http.GetByteArrayAsync("https://npcap.com/dist/npcap-1.75.exe");
+        //    File.WriteAllBytes("npcapInstaller.exe", npcap);
+        //    Process.Start("npcapInstaller.exe").WaitForExit();
+        //    File.Delete("npcapInstaller.exe");
+        //}
         //private void InstallNpCapButton()
         //{
         //    this.Manager

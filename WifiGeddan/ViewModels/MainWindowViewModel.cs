@@ -55,7 +55,7 @@ public class MainWindowViewModel : ViewModelBase
 		GetIFaceMode = ReactiveCommand.Create(GetAdapterMode);
 		StartAiroDumpScan = ReactiveCommand.Create(AiroDumpThread);
 		ClearLogList = ReactiveCommand.Create(ClearLogs);
-        InterfaceList = new ObservableCollection<NetInterfaces>(GenerateInterfaceInfoTable());
+		InterfaceList = new ObservableCollection<NetInterfaces>(GenerateInterfaceInfoTable());
 //         if (WorkingOS == "Windows")
 		//	InterfaceList = new ObservableCollection<NetInterfaces>(GenerateInterfaceInfoTable());
 		//else
@@ -78,10 +78,9 @@ public class MainWindowViewModel : ViewModelBase
 	public ReactiveCommand<Unit, Unit> GetIFaceMode { get; }
 	public ReactiveCommand<Unit, Unit> StartAiroDumpScan { get; }
 	public ReactiveCommand<Unit, Unit> ClearLogList { get; }
-    #endregion ReactiveCommands
+	#endregion ReactiveCommands
 
-    #region Variables
-    private static bool mustBreakLoop = false;
+	#region Variables
 	private static bool airoDumpRunning = false;
 	public static string? IFaceMode { get; set; }
 	public static MainWindowViewModel? _Main { get; set; }
@@ -89,7 +88,7 @@ public class MainWindowViewModel : ViewModelBase
 	public ObservableCollection<AiroDumpRouters> RouterTableList { get; }
 	public ObservableCollection<AiroDumpDevices> DeviceTableList { get; }
 	public ObservableCollection<NetInterfaces> InterfaceList { get;	}
-	public ObservableCollection<DataTable> DataList { get; }
+	public ObservableCollection<DataTable>? DataList { get; }
 	public ObservableCollection<Logs> LogList { get; }
 	public ObservableCollection<string> AvailableInterfaces { get; }
 	internal static string selectedInterface = "Ethernet";
@@ -363,7 +362,7 @@ public class MainWindowViewModel : ViewModelBase
 			File.Delete("interface.log");
 		return interList;
 	}
-	private bool ExecuteCommand(string Operation)
+	private bool DeviceUpDown(string Operation)
 	{
 		try
 		{
@@ -387,6 +386,33 @@ public class MainWindowViewModel : ViewModelBase
 		{
 			Console.WriteLine(ex);
 			return false;
+		}
+	}
+	private string MonModeOnOff(string Operation)
+	{
+		try
+		{
+			Process process = new Process();
+			process.StartInfo.FileName = "cmd.exe";
+			process.StartInfo.UseShellExecute = false;
+			process.StartInfo.RedirectStandardError = true;
+			process.StartInfo.RedirectStandardInput = true;
+			process.StartInfo.RedirectStandardOutput = true;
+			process.StartInfo.CreateNoWindow = true;
+			process.Start();
+			process.StandardInput.WriteLine($"C:\\Windows\\System32\\NpCap\\WlanHelper.exe \"" + selectedInterface + "\" mode " + Operation);
+			process.StandardInput.WriteLine("timeout 5");
+			process.StandardInput.WriteLine("exit");
+			process.StandardInput.AutoFlush = true;
+			string outputtext = process.StandardOutput.ReadToEnd();
+			process.WaitForExit();
+			process.Close();
+			return outputtext;
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine(ex);
+			return ex.Message;
 		}
 	}
 	private List<AdapterInfo> GetInterfaceDetails(string name)
@@ -508,8 +534,9 @@ public class MainWindowViewModel : ViewModelBase
 	{
 		if (WorkingOS == "Windows")
 		{
-			if (!File.Exists("C:\\Windows\\System32\\Npcap\\wlanhelper.exe"))
-				InstallNpcap(ViewHolder._mainWindow); 
+			if (!File.Exists("C:\\Windows\\System32\\Npcap\\wlanhelper.exe")) 
+				if (ViewHolder._mainWindow != null)
+                    InstallNpcap(ViewHolder._mainWindow); 
 					//ShowError(window);
 		}
 		else
@@ -525,8 +552,10 @@ public class MainWindowViewModel : ViewModelBase
 		var mode = "managed";
 		if (WorkingOS == "Windows")
 		{
-			runAndReturn("C:\\Windows\\System32\\Npcap\\wlanhelper.exe", "C:\\Windows\\System32\\Npcap", $"\"{selectedInterface}\" mode managed");
-			mode = runAndReturn("C:\\Windows\\System32\\Npcap\\wlanhelper.exe", "C:\\Windows\\System32\\Npcap", $"\"{selectedInterface}\" mode");
+			//runAndReturn("C:\\Windows\\System32\\Npcap\\wlanhelper.exe", "C:\\Windows\\System32\\Npcap", $"\"{selectedInterface}\" mode managed");
+			string text = MonModeOnOff("monitor");
+			Console.WriteLine(text);
+			mode = text; // runAndReturn("C:\\Windows\\System32\\Npcap\\wlanhelper.exe", "C:\\Windows\\System32\\Npcap", $"\"{selectedInterface}\" mode");
 		}
 		else if (WorkingOS == "Linux")
 		{
@@ -563,8 +592,7 @@ public class MainWindowViewModel : ViewModelBase
 		var mode = "monitor";
 		if (WorkingOS == "Windows")
 		{
-			runAndReturn("C:\\Windows\\System32\\Npcap\\wlanhelper.exe", "C:\\Windows\\System32\\Npcap", $"\"{selectedInterface}\" mode managed");
-			mode = runAndReturn("C:\\Windows\\System32\\Npcap\\wlanhelper.exe", "C:\\Windows\\System32\\Npcap", $"\"{selectedInterface}\" mode");
+			mode = MonModeOnOff("managed");
 		}
 		else if (WorkingOS == "Linux")
 		{
@@ -635,7 +663,6 @@ public class MainWindowViewModel : ViewModelBase
 				{
 					if (ps.ProcessName.Contains("airodump"))
 						ps.Kill();
-					mustBreakLoop = true;
 					breakRunLoop = true;
 				}
 			}
@@ -704,7 +731,7 @@ public class MainWindowViewModel : ViewModelBase
 					Process.Start(_fileName, _argument);
 					break;
 				case "Windows":
-					ExecuteCommand("Enable");
+					DeviceUpDown("Enable");
 					break;
 			}
 			var log = new Logs
@@ -736,7 +763,8 @@ public class MainWindowViewModel : ViewModelBase
 		}
 		catch (Exception ex)
 		{
-			await MessageBox.Show(ViewHolder._mainWindow, ex.Message, "Error", MessageBox.MessageBoxButtons.Ok);
+			if (ViewHolder._mainWindow != null)
+				await MessageBox.Show(ViewHolder._mainWindow, ex.Message, "Error", MessageBox.MessageBoxButtons.Ok);
 		}
 	}
 	private async void DisableAdapter()
@@ -753,7 +781,7 @@ public class MainWindowViewModel : ViewModelBase
 					Process.Start(_fileName, _argument);
 					break;
 				case "Windows":
-					ExecuteCommand("Disable");
+					DeviceUpDown("Disable");
 					break;
 			}
 			var log = new Logs
@@ -785,7 +813,8 @@ public class MainWindowViewModel : ViewModelBase
 		}
 		catch (Exception ex)
 		{
-			await MessageBox.Show(ViewHolder._mainWindow, ex.Message, "Error", MessageBox.MessageBoxButtons.Ok);
+            if (ViewHolder._mainWindow != null)
+               await MessageBox.Show(ViewHolder._mainWindow, ex.Message, "Error", MessageBox.MessageBoxButtons.Ok);
 		}
 	}
 	
@@ -927,19 +956,22 @@ public class MainWindowViewModel : ViewModelBase
 		{
 			LogTime = log.LogTime,
 			LogData = log.LogData
-		};
-		await Dispatcher.UIThread.InvokeAsync(() =>
-			ViewHolder._mainWindow.InsertLog(_log),
+		}; 
+		if (ViewHolder._mainWindow != null)
+		{ 
+            await Dispatcher.UIThread.InvokeAsync(() =>
+			MainWindow.InsertLog(_log),
 			DispatcherPriority.Background);
-		//await Dispatcher.UIThread.InvokeAsync(() =>
-		//	LogList.Add(
-		//		new Logs()
-		//		{
-		//			LogTime = log.LogTime,
-		//			LogData = log.LogData
-		//		}),
-		//	DispatcherPriority.Background);
-	}
+        }
+        //await Dispatcher.UIThread.InvokeAsync(() =>
+        //	LogList.Add(
+        //		new Logs()
+        //		{
+        //			LogTime = log.LogTime,
+        //			LogData = log.LogData
+        //		}),
+        //	DispatcherPriority.Background);
+    }
 	public void InsertDevice(AiroDumpDevices device)
 	{
 		DeviceTableList.Add(device);
@@ -957,7 +989,9 @@ public class MainWindowViewModel : ViewModelBase
 			Name = iface.Name,
 			Mode = mode
 		};
-		await Dispatcher.UIThread.InvokeAsync(() => ViewHolder._mainWindow.InsertInterface(_iface, mode));
+
+        if (ViewHolder._mainWindow != null)
+            await Dispatcher.UIThread.InvokeAsync(() => ViewHolder._mainWindow.InsertInterface(_iface, mode));
 
 	}
 	public async void InsertIface(NetInterfaces[] iface, string mode)
@@ -1013,7 +1047,6 @@ public class MainWindowViewModel : ViewModelBase
 				}
 			};
 			char[] bb = new char[1024];
-			var str = "";
 			proc.Start();
 			looper();
 			while (!proc.StandardOutput.EndOfStream)

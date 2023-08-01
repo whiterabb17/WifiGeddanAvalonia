@@ -57,15 +57,16 @@
 			StretchDirection="UpOnly" />
 		AsyncTask Binding Example
 		<TextBlock Text="{Binding MyAsyncText^, FallbackValue='Wait a second'}" />
+		<MenuItem Header="" />
+				<MenuItem x:Name="LocalServerCtxItem" Header="Start Server" />
+				<MenuItem x:Name="ManageServerCtxItem" Header="Connect To Server" />
+				<MenuItem x:Name="ShutdownCtxItem" Header="Shutdown" />
 		
 		-->
 		<Grid.ContextMenu>
 			<ContextMenu>
 				<MenuItem x:Name="LogCtxItem" Header="Clear Logs" Command="{Binding ClearLogList, DataType={x:Type vm:MainWindowViewModel}}" />
-				<MenuItem Header="--------------------" />
-				<MenuItem x:Name="LocalServerCtxItem" Header="Start Server" />
-				<MenuItem x:Name="ManageServerCtxItem" Header="Connect To Server" />
-				<MenuItem x:Name="ShutdownCtxItem" Header="Shutdown" />
+				
 			</ContextMenu>
 		</Grid.ContextMenu>
 		<!--  Scan Result Data Grid  -->
@@ -81,7 +82,7 @@
 			VerticalAlignment="Top"
 			AutoGenerateColumns="True"
 			Background="Gray"
-			ColumnWidth="1*"
+			ColumnWidth="auto"
 			Foreground="Black"
 			HorizontalGridLinesBrush="Black"
 			ItemsSource="{Binding InterfaceList, DataType={x:Type vm:MainWindowViewModel}}"
@@ -96,6 +97,7 @@
 			Width="780"
 			Height="152"
 			Padding="5,0,50,0"
+			ColumnWidth="auto"
 			AutoGenerateColumns="True"
 			Background="Gray"
 			Foreground="Black"
@@ -121,6 +123,7 @@
 				Padding="5,0,50,0"
 				AutoGenerateColumns="True"
 				Background="Gray"
+				ColumnWidth="auto"
 				Foreground="Black"
 				ScrollViewer.HorizontalScrollBarVisibility="Auto"
 				ScrollViewer.VerticalScrollBarVisibility="Auto"
@@ -132,6 +135,7 @@
 				Grid.RowSpan="2"
 				Grid.Column="0"
 				Grid.ColumnSpan="8"
+				ColumnWidth="auto"
 				ScrollViewer.HorizontalScrollBarVisibility="Auto"
 				ScrollViewer.VerticalScrollBarVisibility="Auto"
 				Width="780"
