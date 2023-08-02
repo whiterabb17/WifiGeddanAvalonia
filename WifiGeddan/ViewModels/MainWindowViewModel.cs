@@ -494,13 +494,15 @@ public class MainWindowViewModel : ViewModelBase
 					int nullCount = 0;
 					foreach (string line in lines)
 					{
-						if (string.IsNullOrEmpty(line) && !hitNull && nullCount == 0)
-							nullCount++;
-						else if (!string.IsNullOrEmpty(line) && !hitNull)
+						if (!string.IsNullOrEmpty(line) && !line.StartsWith("Station MAC"))
 							routers += line + "\n";
-						else if (string.IsNullOrEmpty(line) && !hitNull && nullCount > 0)
+						else if (string.IsNullOrEmpty(line))
+							Console.WriteLine("Empty Line");
+						else if (string.IsNullOrEmpty(line))
+							nullCount++;
+						else if (!string.IsNullOrEmpty(line) && line.StartsWith("Station MAC"))
 							hitNull = true;
-						else if (!string.IsNullOrEmpty(line) && hitNull)
+						if (hitNull && !string.IsNullOrEmpty(line))
 							devices += line + "\n";
 					}
 					File.WriteAllText("devices.csv", devices);
@@ -536,7 +538,7 @@ public class MainWindowViewModel : ViewModelBase
 		{
 			if (!File.Exists("C:\\Windows\\System32\\Npcap\\wlanhelper.exe")) 
 				if (ViewHolder._mainWindow != null)
-                    InstallNpcap(ViewHolder._mainWindow); 
+					InstallNpcap(ViewHolder._mainWindow); 
 					//ShowError(window);
 		}
 		else
@@ -726,8 +728,8 @@ public class MainWindowViewModel : ViewModelBase
 			switch (WorkingOS)
 			{
 				case "Linux":
-					_fileName = "/bin/bash";
-					_argument = "ifconfig " + selectedInterface + " up";
+					_fileName = "ifconfig";
+					_argument = selectedInterface + " up";
 					Process.Start(_fileName, _argument);
 					break;
 				case "Windows":
@@ -776,8 +778,8 @@ public class MainWindowViewModel : ViewModelBase
 			switch (WorkingOS)
 			{
 				case "Linux":
-					_fileName = "/bin/bash";
-					_argument = "ifconfig " + selectedInterface + " dpwn";
+					_fileName = "ifconfig";
+					_argument = selectedInterface + " down";
 					Process.Start(_fileName, _argument);
 					break;
 				case "Windows":
@@ -813,8 +815,8 @@ public class MainWindowViewModel : ViewModelBase
 		}
 		catch (Exception ex)
 		{
-            if (ViewHolder._mainWindow != null)
-               await MessageBox.Show(ViewHolder._mainWindow, ex.Message, "Error", MessageBox.MessageBoxButtons.Ok);
+			if (ViewHolder._mainWindow != null)
+			   await MessageBox.Show(ViewHolder._mainWindow, ex.Message, "Error", MessageBox.MessageBoxButtons.Ok);
 		}
 	}
 	
@@ -959,19 +961,19 @@ public class MainWindowViewModel : ViewModelBase
 		}; 
 		if (ViewHolder._mainWindow != null)
 		{ 
-            await Dispatcher.UIThread.InvokeAsync(() =>
+			await Dispatcher.UIThread.InvokeAsync(() =>
 			MainWindow.InsertLog(_log),
 			DispatcherPriority.Background);
-        }
-        //await Dispatcher.UIThread.InvokeAsync(() =>
-        //	LogList.Add(
-        //		new Logs()
-        //		{
-        //			LogTime = log.LogTime,
-        //			LogData = log.LogData
-        //		}),
-        //	DispatcherPriority.Background);
-    }
+		}
+		//await Dispatcher.UIThread.InvokeAsync(() =>
+		//	LogList.Add(
+		//		new Logs()
+		//		{
+		//			LogTime = log.LogTime,
+		//			LogData = log.LogData
+		//		}),
+		//	DispatcherPriority.Background);
+	}
 	public void InsertDevice(AiroDumpDevices device)
 	{
 		DeviceTableList.Add(device);
@@ -990,8 +992,8 @@ public class MainWindowViewModel : ViewModelBase
 			Mode = mode
 		};
 
-        if (ViewHolder._mainWindow != null)
-            await Dispatcher.UIThread.InvokeAsync(() => ViewHolder._mainWindow.InsertInterface(_iface, mode));
+		if (ViewHolder._mainWindow != null)
+			await Dispatcher.UIThread.InvokeAsync(() => ViewHolder._mainWindow.InsertInterface(_iface, mode));
 
 	}
 	public async void InsertIface(NetInterfaces[] iface, string mode)
