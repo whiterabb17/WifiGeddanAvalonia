@@ -55,16 +55,4 @@
   <ItemGroup>
     <Folder Include="ViewModels\" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Azylee.Core">
-      <HintPath>E:\USBManager\Dlls\Azylee.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="Azylee.Jsons">
-      <HintPath>E:\USBManager\Dlls\Azylee.Jsons.dll</HintPath>
-    </Reference>
-    <Reference Include="Azylee.YeahWeb">
-      <HintPath>E:\USBManager\Dlls\Azylee.YeahWeb.dll</HintPath>
-    </Reference>
-  </ItemGroup>
 </Project>

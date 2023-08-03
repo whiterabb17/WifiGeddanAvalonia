@@ -21,5 +21,6 @@ Cross-Platform AirCrack GUI made on NET6 using the Avalonia Libraries.
   - Suppose I will need to write a wrapper? 
 
 <span>
-	<img align="center" src="https://raw.githubusercontent.com/whiterabb17/WifiGeddanAvalonia/master/WifiGeddan/Assets/screenshots.png">
+	<img align="left" src="https://raw.githubusercontent.com/whiterabb17/WifiGeddanAvalonia/master/WifiGeddan/Assets/screenshots.png">
+	<img align="right" src="https://raw.githubusercontent.com/whiterabb17/WifiGeddanAvalonia/master/WifiGeddan/Assets/airodump.png">
 </span>

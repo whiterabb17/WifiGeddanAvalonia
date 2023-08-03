@@ -415,6 +415,11 @@ public class MainWindowViewModel : ViewModelBase
 			return ex.Message;
 		}
 	}
+	private async void RefreshTables()
+	{
+		if (formatCSV("./airoscan.csv"))
+			await MessageBox.Show(ViewHolder._mainWindow, "Formatting Complete", "Table Generation Successful", MessageBox.MessageBoxButtons.Ok);
+	}
 	private List<AdapterInfo> GetInterfaceDetails(string name)
 	{
 		var infoList = new List<AdapterInfo>();
@@ -444,18 +449,6 @@ public class MainWindowViewModel : ViewModelBase
 		}
 		return infoList;
 	}
-	//private List<UsbInfo> GetExternalUsbs()
-	//{ 
-	//	var usbList = new List<UsbInfo>();
- //       if (Ls.Ok(R.USBListener.AllDevice))
- //       {
- //           foreach (var item in R.USBListener.AllDevice)
- //           {
- //               DGVUSBList.Rows.Add(item.Desc, item.VID, item.PID, item.ID, item.Running ? "run" : "disabled", item.VendorName, item.ProductName, item.IsStorage ? "storage" : "-", item.Volume);
- //           }
- //       }
- //   }
- //   internal static USBListener USBListener = new USBListener(DeviceAct.ChangeDevice, DeviceAct.InsertDevice, DeviceAct.RemoveDevice);
 	private List<NetInterfaces> GetNewInterfaceCollection()
 	{
 		var interfaceList = new List<NetInterfaces>();
@@ -494,19 +487,40 @@ public class MainWindowViewModel : ViewModelBase
 					int nullCount = 0;
 					foreach (string line in lines)
 					{
-						if (!string.IsNullOrEmpty(line) && !line.StartsWith("Station MAC"))
-							routers += line + "\n";
-						else if (string.IsNullOrEmpty(line))
-							Console.WriteLine("Empty Line");
-						else if (string.IsNullOrEmpty(line))
-							nullCount++;
-						else if (!string.IsNullOrEmpty(line) && line.StartsWith("Station MAC"))
-							hitNull = true;
-						if (hitNull && !string.IsNullOrEmpty(line))
-							devices += line + "\n";
-					}
+						if (!hitNull)
+						{
+							if (!string.IsNullOrEmpty(line) && !line.StartsWith("Station MAC"))
+								routers += line + "\n";
+							else if (string.IsNullOrEmpty(line))
+							{ 
+								Console.WriteLine("Empty Line");
+								nullCount++;
+							}
+                            else if (!string.IsNullOrEmpty(line) && line.StartsWith("Station MAC"))
+								hitNull = true;
+                        }
+						else if (hitNull)
+						{
+							if (!string.IsNullOrEmpty(line) && nullCount == 2)
+								devices += line + "\n";
+						}
+                    }
+					//string _routers = "";
+					//foreach (string _line in devices.Split('\n'))
+					//{
+					//	foreach (string _device in _routers.Split('\n'))
+					//	{
+					//		if (_line != _device)
+					//		{
+					//			_routers += _line + "\n";
+					//		}
+					//	}
+					//}
+#if DEBUG
 					File.WriteAllText("devices.csv", devices);
 					File.WriteAllText("routers.csv", routers);
+#endif
+
 				}
 			}
 			return true;

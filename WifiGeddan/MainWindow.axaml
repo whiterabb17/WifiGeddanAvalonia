@@ -66,7 +66,7 @@
 		<Grid.ContextMenu>
 			<ContextMenu>
 				<MenuItem x:Name="LogCtxItem" Header="Clear Logs" Command="{Binding ClearLogList, DataType={x:Type vm:MainWindowViewModel}}" />
-				
+				<MenuItem x:Name="TableRefresh" Header="Refresh Airodump Results" Command="{Binding RefreshTables, DataType={x:Type vm:MainWindowViewModel}}" />
 			</ContextMenu>
 		</Grid.ContextMenu>
 		<!--  Scan Result Data Grid  -->
