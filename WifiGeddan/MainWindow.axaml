@@ -30,8 +30,8 @@
 
 	<Grid
 		Margin="4"
-		Background="Black"
-		ColumnDefinitions="80,70,80,100,80,210,50,120"
+		Background="Gray"
+		ColumnDefinitions="40,75,40,170,120,180,50,120"
 		RowDefinitions="30,30,40,30,30,30,15,30,30,30,30,347,30,30">
 		<TextBlock
 			Grid.Row="0"
@@ -76,8 +76,8 @@
 			Grid.RowSpan="2"
 			Grid.Column="0"
 			Grid.ColumnSpan="8"
-			Width="780"
-			Height="50"
+			Width="800"
+			Height="100"
 			Padding="0,0,10,0"
 			VerticalAlignment="Top"
 			AutoGenerateColumns="True"
@@ -90,12 +90,12 @@
 
 		<DataGrid
 			x:Name="LogGrid"
-			Grid.Row="4"
+			Grid.Row="5"
 			Grid.RowSpan="2"
 			Grid.Column="0"
 			Grid.ColumnSpan="8"
-			Width="780"
-			Height="152"
+			Width="800"
+			Height="140"
 			Padding="5,0,50,0"
 			ColumnWidth="auto"
 			AutoGenerateColumns="True"
@@ -118,13 +118,13 @@
 				Grid.RowSpan="2"
 				Grid.Column="0"
 				Grid.ColumnSpan="8"
-				Width="780"
+				Width="800"
 				Height="200"
 				Padding="5,0,50,0"
 				AutoGenerateColumns="True"
 				Background="Gray"
-				ColumnWidth="auto"
-				Foreground="Black"
+				ColumnWidth="auto"				
+			    Foreground="{DynamicResource SukiPrimaryColor}"
 				ScrollViewer.HorizontalScrollBarVisibility="Auto"
 				ScrollViewer.VerticalScrollBarVisibility="Auto"
 				HorizontalGridLinesBrush="Black"
@@ -138,12 +138,12 @@
 				ColumnWidth="auto"
 				ScrollViewer.HorizontalScrollBarVisibility="Auto"
 				ScrollViewer.VerticalScrollBarVisibility="Auto"
-				Width="780"
+				Width="800"
 				Height="235"
 				Padding="50,0,10,0"
 				AutoGenerateColumns="True"
 				Background="Gray"
-				Foreground="Black"
+			    Foreground="{DynamicResource SukiPrimaryColor}"
 				HorizontalGridLinesBrush="Black"
 				ItemsSource="{Binding DeviceTableList, DataType={x:Type vm:MainWindowViewModel}}" />
 			<TextBox
@@ -156,86 +156,91 @@
 				IsReadOnly="false"
 				IsVisible="False" />
 		</StackPanel>
-
-		<StackPanel Grid.Row="12" Grid.Column="0"  Background="Gray">
-			<Button
-				Grid.Column="2"
-				Width="145"
-				Foreground="Black"
-				Height="30"
-				Background="Gainsboro"
-				Command="{Binding EnableMonMode, DataType={x:Type vm:MainWindowViewModel}}"
-				Content="Enable Mon Mode" />
-			<Button
-				Width="145"
-				Background="Gainsboro"
-				Foreground="Black"
-				Height="30"
-				Command="{Binding DisableMonMode, DataType={x:Type vm:MainWindowViewModel}}"
-				Content="Disable Mon Mode" />
-		</StackPanel>
-		<StackPanel Grid.Row="12" Grid.Column="2" Background="Gray">
-			<Button
-				Width="145"
-				Background="Gainsboro"
-				Foreground="Black"
-				Height="30"
-				Command="{Binding EnableInterface, DataType={x:Type vm:MainWindowViewModel}}"
-				Content=" Enable Interface" />
-			<Button
-				Width="145"
-				Background="Gainsboro"
-				Foreground="Black"
-				Height="30"
-				Command="{Binding DisableInterface, DataType={x:Type vm:MainWindowViewModel}}"
-				Content=" Disable Interface" />
-		</StackPanel>
+		<Button
+			Grid.Column="1"
+			Width="170"
+			Grid.Row="12" 
+			Foreground="{DynamicResource SukiPrimaryColor}"
+			Height="45"
+			Background="Gainsboro"
+			Command="{Binding EnableMonMode, DataType={x:Type vm:MainWindowViewModel}}"
+			Content="Enable Mon Mode" />
+		<Button
+			Width="170"
+			Background="Gainsboro"
+			Foreground="{DynamicResource SukiPrimaryColor}"
+			Height="45"
+			Grid.Row="13" 
+			Grid.Column="1" 
+			Command="{Binding DisableMonMode, DataType={x:Type vm:MainWindowViewModel}}"
+			Content="Disable Mon Mode" />
+		<Button
+			Width="165"
+			Grid.Row="12" 
+			Grid.Column="3"
+			Background="Gainsboro"
+			Foreground="{DynamicResource SukiPrimaryColor}"
+			Height="45"
+			Command="{Binding EnableInterface, DataType={x:Type vm:MainWindowViewModel}}"
+			Content=" Enable Interface" />
+		<Button
+			Width="165"
+			Background="Gainsboro"
+			Grid.Row="13" 
+			Grid.Column="3"
+			Foreground="{DynamicResource SukiPrimaryColor}"
+			Height="45"
+			Command="{Binding DisableInterface, DataType={x:Type vm:MainWindowViewModel}}"
+			Content=" Disable Interface" />
 		<Label
 			Grid.Row="12"
 			Grid.Column="4"
 			Padding="6"
+			Foreground="{DynamicResource SukiPrimaryColor}"
 			Content="Interface:" />
 		<Label
 			Grid.Row="13"
 			Grid.Column="4"
-			Height="30"
+			Foreground="{DynamicResource SukiPrimaryColor}"
+			Height="45"
 			Padding="6"
 			Content="Mode:" />
 		<Label
 			x:Name="IfaceMode"
 			Grid.Row="13"
+			Foreground="{DynamicResource SukiPrimaryColor}"
 			Grid.Column="5"
-			Height="30"
+			Height="45"
 			Padding="6" />
 		<ComboBox
 			x:Name="Interfaces"
 			Grid.Row="12"
-			Foreground="Black"
+			Foreground="{DynamicResource SukiPrimaryColor}"
 			Background="Gainsboro"
 			Grid.Column="5"
-			Width="255"
-			Height="30"
+			Width="240"
+			Height="45"
 			ItemsSource="{Binding AvailableInterfaces, DataType={x:Type vm:MainWindowViewModel}}"
 			SelectedIndex="0" />
 		<Button
 			x:Name="SendBtn"
 			Grid.Row="12"
 			Grid.Column="7"
-			Width="120"			
-			Foreground="Black"
+			Width="165"
+			Foreground="{DynamicResource SukiPrimaryColor}"
 			Background="Gainsboro"
-			Height="30"
+			Height="45"
 			Command="{Binding GetIFaceMode, DataType={x:Type vm:MainWindowViewModel}}"
 			Content="Select"
 			HorizontalAlignment="Center" />
 		<Button
-			Foreground="Black"
+			Foreground="{DynamicResource SukiPrimaryColor}"
 			Grid.Row="13"
 			Background="Gainsboro"
 			Grid.Column="7"
-			Width="120"
+			Width="165"
 			x:Name="AiroButton"
-			Height="30"
+			Height="45"
 			Command="{Binding StartAiroDumpScan, DataType={x:Type vm:MainWindowViewModel}}"
 			Content="Start Airodump"
 			HorizontalAlignment="Center" />

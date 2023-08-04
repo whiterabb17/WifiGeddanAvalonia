@@ -23,13 +23,17 @@
     <Compile Remove="Helpers\R.Tx.cs" />
   </ItemGroup>
 
+  
+  <ItemGroup>
+    <Content Remove="C:\Users\scott\.nuget\packages\sukiui\5.0.1\contentFiles\any\netstandard2.0\suki_photo.ico" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="11.0.1" />
     <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.0.1" />
     <PackageReference Include="Avalonia.Desktop" Version="11.0.1" />
     <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.1" />
     <PackageReference Include="Avalonia.Svg.Skia" Version="11.0.0" />
-    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.1" />
     <PackageReference Include="Avalonia.Fonts.Inter" Version="11.0.1" />
     <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
     <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.0.1" />
@@ -43,6 +47,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Notification.Avalonia" Version="1.1.0" />
     <PackageReference Include="ReactiveUI" Version="19.4.1" />
+    <PackageReference Include="SukiUI" Version="5.0.1" />
     <PackageReference Include="System.Management" Version="7.0.2" />
   </ItemGroup>
 
