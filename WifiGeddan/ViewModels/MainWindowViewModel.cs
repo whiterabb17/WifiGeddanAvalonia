@@ -582,7 +582,7 @@ public class MainWindowViewModel : ViewModelBase
 		var newname = "";
 		foreach (var _i in _ilist)
 		{
-			if (_i.Name == selectedInterface || _i.Name != null && _i.Name.Contains("mon"))
+			if ((_i.Name == selectedInterface ) || (_i.Name != null) && (_i.Name.Contains("mon")))
 			{
 				newname = _i.Name;
 				var selIface = new NetInterfaces()
