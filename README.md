@@ -17,8 +17,8 @@ Cross-Platform AirCrack GUI made on NET6 using the Avalonia Libraries.
 # Coming Soon
 - WPS Pixie Dust Attacks using Reaver & Bully
 - If you have the BSSID, Pixie Dust can be done on Windows/Linux
-- (just can't get airodump to work correctly in windows yet using CSharp)
-  - Suppose I will need to write a wrapper? 
+- ~(just can't get airodump to work correctly in windows yet using CSharp)~
+  - ~Suppose I will need to write a wrapper?~
 
 <span>
 	<img align="left" src="https://raw.githubusercontent.com/whiterabb17/WifiGeddanAvalonia/master/WifiGeddan/Assets/screenshots.png">
